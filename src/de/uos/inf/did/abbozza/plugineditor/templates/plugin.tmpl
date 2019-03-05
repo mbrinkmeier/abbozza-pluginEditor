@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="newplugin" system="%%SYSTEM%%">
+   <name>New Plugin</name>
+   <description>A newly created plugin</description>
+   <js file="blocks.js"/>
+   <feature id="cat.NEWPLUGIN" option="newplugin.enabled">
+      <category name ="New Plugin" id="cat.NEWPLUGIN">
+        <block type="simple_block"/>
+        <block type="not_so_simple_block"/>
+      </category>
+   </feature>
+   <locales>
+       <language id="en">
+            <msg id="cat.NEWPLUGIN">New Plugin</msg>
+       </language>
+       <language id="de">           
+            <msg id="cat.NEWPLUGIN">Neues Plugin</msg>
+       </language>
+   </locales>
+   <requirements>
+        <install file="library.cpp" target="library.cpp"/>
+        <install file="library.h" target="library.h"/>
+   </requirements>
+</plugin>
+

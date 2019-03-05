@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!--
+Copyright 2019 michael.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html>
+    <body>
+    <h1>Files</h1>
+    <p>
+        On this panel you can manage the files belonging to the plugin.
+        There are four basic types of files.
+    </p>
+    <h2>Javascript-Files</h2>
+    <p>
+        These files can be used to add JavaScript Objects an functions to the
+        abbozza! GUI in the browser. In these files new blocks can be defined.
+    </p>
+    <h2>Java-Files</h2>
+    <p>
+        These Files provides Java source code for classe which may be used by
+        the plugin. There are four subtypes of Java-files.        
+    </p>
+    <h3>Http Handler</h3>
+    <p>
+        The class provided by this type of Java-File has to be a subclass of
+        <em>PluginHandler</em>. They are used to provide a Http handler to the
+        abbozza! server.
+    </p>
+    <p>
+        If the plugin is activated, it may be contacted via the URL
+        <em>http://localhost:54242/abbozza/plugin/&lt;pluginid&gt;/</em>.
+    </p>
+    <h3>MonitorPanel</h3>
+    <p>
+        The class provided by this type of Java-File has to be a subclass of
+        <em>PluginMonitorPanel</em>. It provides an additional panel in the
+        abbozza! Monitor. It receives messages with the given prefix.
+    </p>
+    <h3>MonitorListener</h3>
+    <p>
+        The class provided by this type of Java-File has to be a subclass of
+        <em>PluginMonitorListener</em>. It provides an additional listener in the
+        abbozza! Monitor. It receives messages with the given prefix.
+    </p>
+    <h2>Install Files</h2>
+    <p>
+        These files can be used to add libraries to the native sources of the
+        system. They are copied under the name <em>target</em> into the build
+        system right before compiling.
+    </p>
+    <h2>Other</h2>
+    <p>
+        These files can be accessed by the following URL: ???
+    </p>
+    </body>
+</html>

@@ -1,0 +1,70 @@
+/*
+ * Copyright ???? <AUTOR>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+import de.uos.inf.did.abbozza.plugin.*;
+import de.uos.inf.did.abbozza.core.*;
+import de.uos.inf.did.abbozza.handler.*;
+import de.uos.inf.did.abbozza.monitor.*;
+import de.uos.inf.did.abbozza.monitor.clacks.*;
+import java.io.IOException;
+import java.io.OutputStream;
+
+/**
+ *
+ * @author michael
+ */
+public abstract class <ClassName> extends PluginMonitorPanel {
+    
+    /**
+     * Return a popup menu.
+     * 
+     * @return The popup menu
+     */
+    public JPopupMenu getPopUp() {
+        return null;
+    }
+
+    /**
+     * Process a message received by the monitor
+     * 
+     * @param msg The received message
+     */
+    public void processMessage(String msg) {
+    }
+    
+    /**
+     * Process bytes in the byte stream buffer.
+     */
+    public void process(ClacksBytes bytes) {
+    }
+    
+    /**
+     * Called if the panel is added to the monitor
+     * @param monitor The Monitor to which the panel is connected
+     */
+    public void connect(AbbozzaMonitor monitor) {
+    }
+    
+    /**
+     * Called if the panel is removed from the monitor
+     * @param monitor The Monitor from which the panel is disconnected
+     */
+    public void disconnect(AbbozzaMonitor monitor) {
+    }
+    
+}
