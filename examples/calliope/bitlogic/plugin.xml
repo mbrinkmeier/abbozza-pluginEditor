@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plugin id="bitlogic" parent="advanced" system="calliopeC">
+<name>BitLogic</name>
+<description>This plugin provides blocks for doing bitwise operations on integers.</description>
+<js file="blocks.js"/>
+<feature id="feat.bitlogic" option="bitlogic.enabled">
+<category id="cat.MATH">
+   <block type="bitlogic_operation"/>
+   <!-- block type="bitlogic_shift"/-->
+</category>
+</feature>
+<options>
+<item default="true" name="Name_of_the_item" option="option_id"/>
+<group name="Name_of_the_Group">
+    <item default="true" name="Name_of_the_item" option="option_id"/>
+</group>
+</options>
+<locales>
+<language id="de">
+<msg id="bitlogic.op_not">Bitweise Negation</msg>
+<msg id="cat.BITLOGIC">Bitweise Operationen</msg>
+<msg id="bitlogic.op_tooltip">Bitweise Operationen</msg>
+</language>
+<language id="en">
+<msg id="bitlogic.op_not">Bitwise negation</msg>
+<msg id="cat.BITLOGIC">Bitwise Operations</msg>
+<msg id="bitlogic.op_tooltip">Bitwise operations</msg>
+</language>
+</locales>
+</plugin>

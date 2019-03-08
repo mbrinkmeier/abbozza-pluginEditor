@@ -24,14 +24,55 @@ public class FileEntry {
     public static final int TYPE_JAVA = 1;
     public static final int TYPE_INSTALL = 2;
     public static final int TYPE_MISC = 3;
+    public static final int TYPE_WORLD = 4;
     
     public static final int JTYPE_OTHER = 0;
     public static final int JTYPE_HTTP = 1;
     public static final int JTYPE_PANEL = 2;
     public static final int JTYPE_LISTENER = 3;
 
-    protected String name;
+    protected String name;    
+    protected int type;
+    protected String target;
+    protected int javaType;
+    protected String prefix;
+    protected boolean deletable;
+        
+    public FileEntry(String name, String target, int type) {
+        this.name = name;
+        this.target = target;
+        this.type = type;
+        this.javaType = JTYPE_OTHER;
+        this.prefix = null;
+        
+        // World files are undeletable
+        if ( type == TYPE_WORLD ) {
+            deletable = false;
+        } else {
+            deletable = true;            
+        }
+    }
 
+    public FileEntry(String name, String target, int type, int jtype, String prefix) {
+        this.name = name;
+        this.target = target;
+        this.type = type;
+        this.javaType = jtype;
+        this.prefix = prefix;
+        deletable = true;
+        
+        // World files are undeletable
+        if ( type == TYPE_WORLD ) {
+            deletable = false;
+        } else {
+            deletable = true;            
+        }
+    }
+    
+    public String toString() {
+        return name;
+    }
+   
     public String getName() {
         return name;
     }
@@ -51,29 +92,14 @@ public class FileEntry {
     public String getPrefix() {
         return prefix;
     }
-    protected int type;
-    protected String target;
-    protected int javaType;
-    protected String prefix;
-        
-    public FileEntry(String name, String target, int type) {
-        this.name = name;
-        this.target = target;
-        this.type = type;
-        this.javaType = JTYPE_OTHER;
-        this.prefix = null;
+
+    public boolean isDeletable() {
+        return deletable;
     }
 
-    public FileEntry(String name, String target, int type, int jtype, String prefix) {
-        this.name = name;
-        this.target = target;
-        this.type = type;
-        this.javaType = jtype;
-        this.prefix = prefix;
+    public void setDeletable(boolean deletable) {
+        this.deletable = deletable;
     }
     
-    public String toString() {
-        return name;
-    }
-   
+    
 }

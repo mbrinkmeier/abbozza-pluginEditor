@@ -16,6 +16,14 @@
 package de.uos.inf.did.abbozza.plugineditor.gui;
 
 import de.uos.inf.did.abbozza.plugineditor.FileEntry;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 /**
  *
@@ -24,6 +32,7 @@ import de.uos.inf.did.abbozza.plugineditor.FileEntry;
 public class FileDialog extends javax.swing.JDialog {
 
     public int state;
+    private PluginFrame frame;
     
     /**
      * Creates new form FileDialog
@@ -34,7 +43,8 @@ public class FileDialog extends javax.swing.JDialog {
     public FileDialog(java.awt.Frame parent, boolean modal, FileEntry entry) {
         super(parent, modal);
         initComponents();
-
+        frame = (PluginFrame) parent;
+        
         if (entry != null) {
             nameField.setText(entry.getName());
             targetField.setText(entry.getTarget());
@@ -98,7 +108,6 @@ public class FileDialog extends javax.swing.JDialog {
         jvButton = new javax.swing.JRadioButton();
         inButton = new javax.swing.JRadioButton();
         miButton = new javax.swing.JRadioButton();
-        importButton = new javax.swing.JButton();
         targetLabel = new javax.swing.JLabel();
         targetField = new javax.swing.JTextField();
         cancelButton = new javax.swing.JButton();
@@ -143,8 +152,6 @@ public class FileDialog extends javax.swing.JDialog {
 
         typeGroup.add(miButton);
         miButton.setText("Misc file");
-
-        importButton.setText("Import");
 
         targetLabel.setText("Target");
         targetLabel.setEnabled(false);
@@ -220,8 +227,7 @@ public class FileDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(targetField))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(importButton, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 81, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -237,7 +243,7 @@ public class FileDialog extends javax.swing.JDialog {
                             .addComponent(httpButton)
                             .addComponent(listenerButton)
                             .addComponent(panelButton))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 103, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(prefixLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -278,8 +284,7 @@ public class FileDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelButton)
-                    .addComponent(okButton)
-                    .addComponent(importButton))
+                    .addComponent(okButton))
                 .addContainerGap())
         );
 
@@ -385,7 +390,6 @@ public class FileDialog extends javax.swing.JDialog {
     private javax.swing.JButton cancelButton;
     private javax.swing.ButtonGroup handlerGroup;
     private javax.swing.JRadioButton httpButton;
-    private javax.swing.JButton importButton;
     private javax.swing.JRadioButton inButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JRadioButton jsButton;

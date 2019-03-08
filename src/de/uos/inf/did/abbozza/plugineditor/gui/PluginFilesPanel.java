@@ -16,13 +16,13 @@
 package de.uos.inf.did.abbozza.plugineditor.gui;
 
 import de.uos.inf.did.abbozza.plugineditor.FileEntry;
-import de.uos.inf.did.abbozza.plugineditor.FileEntryRenderer;
 import de.uos.inf.did.abbozza.plugineditor.GUITool;
 import de.uos.inf.did.abbozza.plugineditor.IllegalPluginException;
 import de.uos.inf.did.abbozza.plugineditor.PluginEditor;
-import de.uos.inf.did.abbozza.plugineditor.PluginPanel;
+import de.uos.inf.did.abbozza.plugineditor.XMLTool;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -30,6 +30,8 @@ import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -217,8 +219,11 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
      */
     private void delButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delButtonActionPerformed
         if ( fileList.getSelectedIndex() >= 0 ) {
-            files.remove(fileList.getSelectedIndex());
-            fileList.setSelectedIndex(-1);
+            FileEntry entry = (FileEntry) files.elementAt(fileList.getSelectedIndex());
+            if ( entry.isDeletable() ) {
+                files.remove(fileList.getSelectedIndex());
+                fileList.setSelectedIndex(-1);
+            }
         }
     }//GEN-LAST:event_delButtonActionPerformed
 
@@ -229,9 +234,16 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
      */
     private void fileListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_fileListValueChanged
         if ( fileList.getSelectedIndex() >= 0 ) {
-            editButton.setEnabled(true);
-            delButton.setEnabled(true);
-            openButton.setEnabled(true);
+            FileEntry entry = (FileEntry) files.elementAt(fileList.getSelectedIndex());            
+            if ( entry.isDeletable() ) {
+                editButton.setEnabled(true);
+                delButton.setEnabled(true);
+                openButton.setEnabled(true);
+            } else {
+                editButton.setEnabled(false);
+                delButton.setEnabled(false);            
+                openButton.setEnabled(true);                
+            }
         } else {
             editButton.setEnabled(false);
             delButton.setEnabled(false);            
@@ -263,7 +275,7 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
                 }  else if ( mimetype.contains("xml")) {
                     fileEditor.setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_XML);                    
                 }
-                frame.addFileContainerPanel(fileEditor, entry.getName(), true);
+                frame.addFileContainerPanel(fileEditor, true);
             }
         } catch (IOException ex) {
             Logger.getLogger(PluginFilesPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -278,6 +290,9 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
         int idx = fileList.getSelectedIndex();
         FileEntry entry = files.get(idx);
+        
+        if ( !entry.isDeletable() ) return;
+        
         FileDialog dialog = new FileDialog(frame,true, entry);
         GUITool.centerWindow(dialog);
         dialog.setVisible(true);
@@ -386,14 +401,21 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
         Element file;
         FileEntry entry;
         
+        // Find requirements tag
+        req = XMLTool.getFirstElement(plugin,"requirements");
+        
         for ( Object obj : files.toArray() ) {
             entry = (FileEntry) obj;
             switch ( entry.getType() ) {
+                case FileEntry.TYPE_WORLD:
+                    break;
+                    
                 case FileEntry.TYPE_JS :
                     file = xml.createElement("js");
                     file.setAttribute("file", entry.getName());
                     plugin.appendChild(file);
                     break;
+                    
                 case FileEntry.TYPE_JAVA :
                 switch (entry.getJavaType()) {
                     case FileEntry.JTYPE_OTHER:
@@ -448,8 +470,12 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
         String template = "templates/javascript.tmpl";
         File file = new File(frame.getPluginPath() + "/" + entry.getName());
         try {
+            Files.createDirectories(file.toPath().getParent());
             Files.createFile(file.toPath());
             switch ( entry.getType() ) {
+                case FileEntry.TYPE_WORLD:
+                    template = null;
+                    break;
                 case FileEntry.TYPE_JS:
                     template = "templates/javascript.tmpl";
                     break;
@@ -476,7 +502,9 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
                     template = null;
                     break;
             }
-            frame.writeTemplate(template , entry.getName());
+            if ( template != null ) {
+                frame.writeTemplate(template , entry.getName());
+            }
         } catch ( FileAlreadyExistsException aeex ) {            
             // PluginEditor.showErrorMessage(file.getAbsolutePath() + " exists!");
             return true;
@@ -518,4 +546,70 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton openButton;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public boolean isBasePanel() {
+        return true;
+    }
+
+    
+    /**
+     * Build all java files in teh plugin.
+     * 
+     */
+    @Override
+    public boolean build() {
+        FileEntry entry = null;
+        boolean aborted = false;
+    
+        for ( Object obj : files.toArray() ) {
+            entry = (FileEntry) obj;
+            if ( entry.getType() == FileEntry.TYPE_JAVA  ) {
+                if ( !buildFile(entry) ) {
+                    aborted = true;
+                    break;
+                }
+            }
+        }
+        
+        if ( !aborted ) {
+            frame.setStatusMsg("Build successfull!");
+            return true;
+        }
+        
+        return false;
+    }   
+
+    /**
+     * Compile a java file.
+     * @param entry 
+     */
+    public boolean buildFile(FileEntry entry) {
+        frame.setStatusMsg("Compiling " + entry.getName() + " ...");
+
+        String arguments = "";
+        String system = frame.getSystem();
+        if ( system.equals("arduino") && (PluginEditor.getArduinoJar() != null) )  {
+            arguments = PluginEditor.getArduinoJar().getName(); 
+        } else if ( system.equals("calliopeC")  && (PluginEditor.getCalliopeJar() != null) ) {
+            arguments = PluginEditor.getCalliopeJar().getName();             
+        } else if ( system.equals("worlds")  && (PluginEditor.getWorldsJar() != null) ) {
+            arguments = PluginEditor.getWorldsJar().getName();             
+        }
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayOutputStream err = new ByteArrayOutputStream();
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        int result = compiler.run(null, out, err, "-cp" , arguments, frame.getPluginPath() + "/" + entry.getName() );
+        if ( result == 0 ) {
+            frame.setStatusMsg("Compliation of " + entry.getName() + " successfull!");
+            return true;
+        } else {
+            frame.setErrorMsg("Error during compilation!");
+            MessageFrame msgFrame = new MessageFrame("Error during compilation of " + entry.getName() , err.toString());
+            GUITool.centerWindow(msgFrame);
+            return false;
+        }
+    }
+
 }

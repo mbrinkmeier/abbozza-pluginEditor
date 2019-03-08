@@ -17,9 +17,7 @@ package de.uos.inf.did.abbozza.plugineditor.gui;
 
 import de.uos.inf.did.abbozza.plugineditor.IllegalPluginException;
 import de.uos.inf.did.abbozza.plugineditor.PluginEditor;
-import de.uos.inf.did.abbozza.plugineditor.PluginPanel;
 import de.uos.inf.did.abbozza.plugineditor.XMLTool;
-import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
 import java.awt.Font;
 import javax.swing.text.Highlighter;
 import org.fife.ui.autocomplete.AutoCompletion;
@@ -30,6 +28,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -152,9 +151,9 @@ public class PluginFeaturePanel extends javax.swing.JPanel implements PluginPane
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel editorPane;
-    private javax.swing.JCheckBox featureCheckBox;
-    private javax.swing.JButton helpButton;
+    protected javax.swing.JPanel editorPane;
+    protected javax.swing.JCheckBox featureCheckBox;
+    protected javax.swing.JButton helpButton;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -190,7 +189,10 @@ public class PluginFeaturePanel extends javax.swing.JPanel implements PluginPane
             featureCheckBox.setSelected(true);
             editor.setEditable(true);
             editor.setEnabled(true);
-            editor.setText(XMLTool.elementsToString(XMLTool.getFirstElement(plugin, "feature"), "category"));
+            Element el = XMLTool.getFirstElement(plugin, "feature");
+            if ( el != null ) {
+                editor.setText(XMLTool.elementsToString(el , "category"));
+            }
         }
     }
 
@@ -210,26 +212,33 @@ public class PluginFeaturePanel extends javax.swing.JPanel implements PluginPane
             Element feature = (Element) xml.createElement("feature");
             feature.setAttribute("id", "feat." + frame.getId());
             feature.setAttribute("option", frame.getId() + ".enabled");
-            Document doc = XMLTool.documentFromString(editor.getText());
-            while (doc.hasChildNodes()) {
-                Element child = null;
+            Document doc = XMLTool.documentFromString("<xml>" + editor.getText() + "</xml>");
+            Element root = (Element) doc.getFirstChild();
+            
+            NodeList children = root.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++ ) {
                 try {
-                    child = (Element) doc.getFirstChild();
+                    Element child = (Element) children.item(i);
                     if (child != null) {
-                        doc.removeChild(child);
+                        root.removeChild(child);
                     }
                     xml.adoptNode(child);
                     feature.appendChild(child);
-                } catch (ClassCastException ex) {
-                    if (child != null) {
-                        System.out.println("err: " + child.toString());
-                        doc.removeChild(child);
-                    }
-                }
+                } catch (ClassCastException ex) {}
             }
+            
             plugin.appendChild(feature);
         }
+        
     }
+
+    @Override
+    public boolean isBasePanel() {
+        return true;
+    }
+
+    @Override
+    public boolean build() { return true; }
 
     
 }

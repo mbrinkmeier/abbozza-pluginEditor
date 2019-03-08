@@ -42,6 +42,12 @@ public class ClosableTabPanel extends javax.swing.JPanel {
             }
         });
         
+        titleLabel.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                tabbedPane.setSelectedComponent(panel);
+            }
+        });
+        
     }
 
     /**
@@ -56,15 +62,26 @@ public class ClosableTabPanel extends javax.swing.JPanel {
         titleLabel = new javax.swing.JLabel();
         closeButton = new javax.swing.JButton();
 
-        java.awt.FlowLayout flowLayout1 = new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 3, 0);
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, 0));
+        setPreferredSize(null);
+        java.awt.FlowLayout flowLayout1 = new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0);
         flowLayout1.setAlignOnBaseline(true);
         setLayout(flowLayout1);
 
         titleLabel.setText("jLabel1");
+        titleLabel.setToolTipText("");
+        titleLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 2));
+        titleLabel.setInheritsPopupMenu(false);
+        titleLabel.setMaximumSize(new java.awt.Dimension(2048, 20));
+        titleLabel.setMinimumSize(new java.awt.Dimension(51, 20));
+        titleLabel.setPreferredSize(null);
         add(titleLabel);
 
         closeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/uos/inf/did/abbozza/plugineditor/close.png"))); // NOI18N
         closeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        closeButton.setMaximumSize(new java.awt.Dimension(20, 20));
+        closeButton.setMinimumSize(new java.awt.Dimension(20, 20));
+        closeButton.setPreferredSize(new java.awt.Dimension(20, 20));
         add(closeButton);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -77,4 +94,5 @@ public class ClosableTabPanel extends javax.swing.JPanel {
     private javax.swing.JButton closeButton;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
+
 }

@@ -15,13 +15,19 @@
  */
 package de.uos.inf.did.abbozza.plugineditor.systems;
 
+import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
+
 /**
  *
  * @author michael
  */
 public abstract class SystemManager {
    
-    public SystemManager() {}
+    protected PluginFrame frame;
+    
+    public SystemManager(PluginFrame frame) {
+        this.frame = frame;
+    }
     
     public abstract String getSystem();
     public abstract String getDisplayName();
@@ -29,5 +35,7 @@ public abstract class SystemManager {
     public String toString() {
         return getDisplayName();
     }
+    
+    public void initPanels() {}
     
 }

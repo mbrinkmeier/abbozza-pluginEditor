@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.uos.inf.did.abbozza.plugineditor;
+package de.uos.inf.did.abbozza.plugineditor.gui;
 
+import de.uos.inf.did.abbozza.plugineditor.FileEntry;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -35,21 +36,29 @@ import javax.swing.ListCellRenderer;
  */
 public class FileEntryRenderer implements ListCellRenderer<FileEntry> {
 
-    protected Image jsImage;
-    protected Image javaImage;
-    protected Image installImage;
-    protected Image miscImage;
+    protected static Image jsImage;
+    protected static Image javaImage;
+    protected static Image installImage;
+    protected static Image miscImage;
     
     public FileEntryRenderer() {
         super();
         try {
-            jsImage = ImageIO.read(getClass().getResourceAsStream("text-x-javascript.png")).getScaledInstance(24,24,Image.SCALE_DEFAULT);
-            javaImage = ImageIO.read(getClass().getResourceAsStream("text-x-java.png"));
-            javaImage = javaImage.getScaledInstance(24,24,Image.SCALE_DEFAULT);
-            installImage = ImageIO.read(getClass().getResourceAsStream("text-x-csrc.png"));
-            installImage = installImage.getScaledInstance(24,24,Image.SCALE_DEFAULT);
-            miscImage = ImageIO.read(getClass().getResourceAsStream("unknown.png"));
-            miscImage = miscImage.getScaledInstance(24,24,Image.SCALE_DEFAULT);
+            if (jsImage == null) {
+                jsImage = ImageIO.read(getClass().getResourceAsStream("text-x-javascript.png")).getScaledInstance(24,24,Image.SCALE_DEFAULT);
+            }
+            if (javaImage == null) {
+                javaImage = ImageIO.read(getClass().getResourceAsStream("text-x-java.png"));
+                javaImage = javaImage.getScaledInstance(24,24,Image.SCALE_DEFAULT);
+            }
+            if (installImage == null) {
+                installImage = ImageIO.read(getClass().getResourceAsStream("text-x-csrc.png"));
+                installImage = installImage.getScaledInstance(24,24,Image.SCALE_DEFAULT);
+            }
+            if (miscImage == null) {
+                miscImage = ImageIO.read(getClass().getResourceAsStream("unknown.png"));
+                miscImage = miscImage.getScaledInstance(24,24,Image.SCALE_DEFAULT);
+            }
         } catch (IOException ex) {
             Logger.getLogger(FileEntryRenderer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -60,14 +69,16 @@ public class FileEntryRenderer implements ListCellRenderer<FileEntry> {
         JPanel panel = new JPanel();
         if ( !isSelected ) {
             panel.setBackground(Color.white);
+        } else if ( !value.isDeletable() ) {
+            panel.setBackground(new Color(255,230,230));
         } else {
             panel.setBackground(new Color(230,230,230));            
         }
         panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        String txt = value.name;
+        String txt = value.getName();
         
-        if ( value.type == FileEntry.TYPE_JAVA ) {
-            switch ( value.javaType ) {
+        if ( value.getType() == FileEntry.TYPE_JAVA ) {
+            switch ( value.getJavaType() ) {
             case FileEntry.JTYPE_HTTP:
                 txt = txt + " [HttpHandler]";
                 break;
@@ -82,7 +93,7 @@ public class FileEntryRenderer implements ListCellRenderer<FileEntry> {
         JLabel name = new JLabel(txt);
         panel.add(name, FlowLayout.LEFT);
         JLabel icon = null;
-        switch ( value.type ) {
+        switch ( value.getType() ) {
             case FileEntry.TYPE_JS :
                 icon = new JLabel(new ImageIcon(jsImage));
                 break;

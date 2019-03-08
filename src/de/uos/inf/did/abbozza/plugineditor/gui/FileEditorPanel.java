@@ -16,9 +16,9 @@
 package de.uos.inf.did.abbozza.plugineditor.gui;
 
 import de.uos.inf.did.abbozza.plugineditor.FileEntry;
+import de.uos.inf.did.abbozza.plugineditor.GUITool;
 import de.uos.inf.did.abbozza.plugineditor.IllegalPluginException;
 import de.uos.inf.did.abbozza.plugineditor.PluginEditor;
-import de.uos.inf.did.abbozza.plugineditor.PluginPanel;
 import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
 import java.awt.Color;
 import java.awt.Font;
@@ -54,6 +54,8 @@ public class FileEditorPanel extends javax.swing.JPanel implements PluginPanel {
         this.entry = entry;
         
         initComponents();
+        
+        this.setName(entry.getName());
 
         editor = new RSyntaxTextArea(50, 120);
         editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
@@ -154,7 +156,7 @@ public class FileEditorPanel extends javax.swing.JPanel implements PluginPanel {
     }//GEN-LAST:event_saveButtonActionPerformed
 
     private void compileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compileButtonActionPerformed
-        compile();
+        build();
     }//GEN-LAST:event_compileButtonActionPerformed
 
 
@@ -220,9 +222,11 @@ public class FileEditorPanel extends javax.swing.JPanel implements PluginPanel {
     /**
      * Compile the file.
      */
-    public void compile() {
+    public boolean build() {
         save(null,null);
         
+        frame.setStatusMsg("Compiling " + entry.getName() + " ...");
+
         String arguments = "";
         String system = frame.getSystem();
         if ( system.equals("arduino") && (PluginEditor.getArduinoJar() != null) )  {
@@ -236,10 +240,21 @@ public class FileEditorPanel extends javax.swing.JPanel implements PluginPanel {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        System.out.println(arguments);
         int result = compiler.run(null, out, err, "-cp" , arguments, frame.getPluginPath() + "/" + entry.getName() );
-        System.out.println(out.toString());
-        System.err.println(err.toString()); 
+        if ( result == 0 ) {
+            frame.setStatusMsg("Compliation of " + entry.getName() + " successfull!");
+            return true;
+        } else {
+            frame.setErrorMsg("Error during compilation!");
+            MessageFrame msgFrame = new MessageFrame("Error during compilation of " + entry.getName() , err.toString());
+            GUITool.centerWindow(msgFrame);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isBasePanel() {
+        return true;
     }
     
 }

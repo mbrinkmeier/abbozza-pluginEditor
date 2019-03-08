@@ -15,11 +15,19 @@
  */
 package de.uos.inf.did.abbozza.plugineditor.systems;
 
+import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
+
 /**
  *
  * @author michael
  */
 public class ArduinoManager extends SystemManager {
+
+    private ArduinoLibraryPanel libraryPanel;
+    
+    public ArduinoManager(PluginFrame frame) {
+        super(frame);
+    }
 
     @Override
     public String getSystem() {
@@ -31,5 +39,12 @@ public class ArduinoManager extends SystemManager {
         return "abbozza! Arduino";
     }
     
+    
+    @Override
+    public void initPanels() {
+        libraryPanel = new ArduinoLibraryPanel(frame);
+        System.out.println(libraryPanel.getName());
+        frame.addInfoContainerPanel(libraryPanel, false);
+    }
     
 }

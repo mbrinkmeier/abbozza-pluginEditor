@@ -154,8 +154,8 @@
     </Component>
     <Component class="javax.swing.JFormattedTextField" name="idField">
       <Properties>
-        <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.editors.AbstractFormatterFactoryEditor" preCode="try {" postCode="} catch (java.text.ParseException ex) {&#xa;ex.printStackTrace();&#xa;}">
-          <Format format="HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" subtype="-1" type="5"/>
+        <Property name="formatterFactory" type="javax.swing.JFormattedTextField$AbstractFormatterFactory" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="new AbstractFormatterFactory() {&#xa;            @Override&#xa;            public AbstractFormatter getFormatter(JFormattedTextField tf) {&#xa;                return new AbstractFormatter() {&#xa;                    @Override&#xa;                    public Object stringToValue(String text) throws ParseException {&#xa;                        return text.replaceAll(&quot;\\W&quot;,&quot;&quot;);&#xa;                    }&#xa;&#xa;                    @Override&#xa;                    public String valueToString(Object value) throws ParseException {&#xa;                        if ( value == null ) return &quot;&quot;;&#xa;                        return value.toString();&#xa;                    }&#xa;                };&#xa;            }&#xa;        }" type="code"/>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;This is the id of the plugin.&lt;br/&gt;&#xa;It is used as part of the URL to access the&lt;br/&gt;&#xa;contents and services provided by teh plugin.&lt;br/&gt;&#xa;&lt;br/&gt;&#xa;Its maximal length is 32 characters and it may only&lt;br/&gt;&#xa;consist of letters and digits.&#xa;&lt;/html&gt;"/>
       </Properties>

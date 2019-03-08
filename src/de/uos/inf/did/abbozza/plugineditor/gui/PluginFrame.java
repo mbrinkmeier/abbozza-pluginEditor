@@ -19,8 +19,6 @@ import de.uos.inf.did.abbozza.plugineditor.FileEntry;
 import de.uos.inf.did.abbozza.plugineditor.GUITool;
 import de.uos.inf.did.abbozza.plugineditor.IllegalPluginException;
 import de.uos.inf.did.abbozza.plugineditor.PluginEditor;
-import de.uos.inf.did.abbozza.plugineditor.PluginLanguagePanel;
-import de.uos.inf.did.abbozza.plugineditor.PluginPanel;
 import de.uos.inf.did.abbozza.plugineditor.XMLTool;
 import de.uos.inf.did.abbozza.plugineditor.systems.ArduinoManager;
 import de.uos.inf.did.abbozza.plugineditor.systems.CalliopeManager;
@@ -28,23 +26,35 @@ import de.uos.inf.did.abbozza.plugineditor.systems.MonitorManager;
 import de.uos.inf.did.abbozza.plugineditor.systems.SystemManager;
 import de.uos.inf.did.abbozza.plugineditor.systems.WorldsManager;
 import java.awt.Component;
+import java.awt.Image;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -63,38 +73,47 @@ public class PluginFrame extends javax.swing.JFrame {
 
     protected PluginInfoPanel infoPanel;
     protected PluginFeaturePanel featurePanel;
+    protected PluginOptionsPanel optionsPanel;
     protected PluginLanguagePanel languagePanel;
     protected PluginFilesPanel filesPanel;
 
     protected boolean changed;
 
-    protected HashMap<String,SystemManager> systems;
+    protected HashMap<String, SystemManager> systems;
     protected SystemManager systemManager;
+
+    protected Image errorIcon;
     
     public Collection<SystemManager> getSystems() {
         return systems.values();
     }
-    
+
     /**
      * Creates new PluginFrame.
-     * 
+     *
      * @param pluginPath The path for the plugin
-     * @throws IllegalPluginException 
+     * @throws IllegalPluginException
      */
     public PluginFrame(String pluginPath) throws IllegalPluginException {
         // Register system managers
         systems = new LinkedHashMap();
-        systems.put("arduino", new ArduinoManager());
-        systems.put("calliopeC", new CalliopeManager());
-        systems.put("worlds", new WorldsManager());
-        systems.put("monitor", new MonitorManager());
+        systems.put("arduino", new ArduinoManager(this));
+        systems.put("calliopeC", new CalliopeManager(this));
+        systems.put("worlds", new WorldsManager(this));
+        systems.put("monitor", new MonitorManager(this));
         
+        try {
+            errorIcon = ImageIO.read(PluginEditor.class.getResourceAsStream("error.png"));
+        } catch (IOException ex) {
+            errorIcon = null;
+        }
+
         // If the plugin path is null, ask for a plugin path
-        if ( pluginPath == null ) {
+        if (pluginPath == null) {
             this.pluginPath = askForPlugin();
-            
+
             // Exit, if no path is selected.
-            if ( this.pluginPath == null ) {
+            if (this.pluginPath == null) {
                 System.exit(1);
             }
         } else {
@@ -113,12 +132,15 @@ public class PluginFrame extends javax.swing.JFrame {
         featurePanel = new PluginFeaturePanel(this);
         fileContainer.add(featurePanel);
 
+        optionsPanel = new PluginOptionsPanel(this);
+        fileContainer.add(optionsPanel);
+
         languagePanel = new PluginLanguagePanel(this);
         fileContainer.add(languagePanel);
-        
+
         filesPanel = new PluginFilesPanel(this);
         infoContainer.add(filesPanel);
-        
+
         load(xml);
     }
 
@@ -131,10 +153,12 @@ public class PluginFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jButton1 = new javax.swing.JButton();
         footerPanel = new javax.swing.JPanel();
         changeLabel = new javax.swing.JLabel();
         statusMsg = new javax.swing.JTextField();
         pathField = new javax.swing.JTextField();
+        statusIcon = new javax.swing.JLabel();
         infoContainer = new javax.swing.JTabbedPane();
         fileContainer = new javax.swing.JTabbedPane();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -151,6 +175,9 @@ public class PluginFrame extends javax.swing.JFrame {
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
         quitMenuItem = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        buildItem = new javax.swing.JMenuItem();
+
+        jButton1.setText("jButton1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("abbozza! Plugin Editor");
@@ -177,9 +204,11 @@ public class PluginFrame extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, footerPanelLayout.createSequentialGroup()
                 .addComponent(changeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(statusMsg)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(statusIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(statusMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 597, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(110, 110, 110)
+                .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         footerPanelLayout.setVerticalGroup(
@@ -187,7 +216,8 @@ public class PluginFrame extends javax.swing.JFrame {
             .addGroup(footerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(changeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(statusMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(statusIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jMenu1.setText("File");
@@ -260,7 +290,16 @@ public class PluginFrame extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Edit");
+        jMenu2.setText("Plugin");
+
+        buildItem.setText("Build Jar");
+        buildItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buildItemActionPerformed(evt);
+            }
+        });
+        jMenu2.add(buildItem);
+
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -273,7 +312,7 @@ public class PluginFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(infoContainer, javax.swing.GroupLayout.PREFERRED_SIZE, 440, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(fileContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE))
+                .addComponent(fileContainer))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -291,7 +330,7 @@ public class PluginFrame extends javax.swing.JFrame {
         Document newXml;
         String oldPluginPath;
         String newPluginPath = askForPlugin();
-        if ( newPluginPath != null ) {
+        if (newPluginPath != null) {
             oldPluginPath = pluginPath;
             pluginPath = newPluginPath;
             try {
@@ -299,7 +338,7 @@ public class PluginFrame extends javax.swing.JFrame {
                 load(newXml);
             } catch (IllegalPluginException ex) {
                 PluginEditor.showErrorMessage(ex.getMsg());
-                pluginPath = oldPluginPath;              
+                pluginPath = oldPluginPath;
             }
         }
     }//GEN-LAST:event_newMenuItemActionPerformed
@@ -316,7 +355,7 @@ public class PluginFrame extends javax.swing.JFrame {
         Document newXml;
         String oldPluginPath;
         String newPluginPath = askForPlugin();
-        if ( newPluginPath != null ) {
+        if (newPluginPath != null) {
             oldPluginPath = pluginPath;
             pluginPath = newPluginPath;
             try {
@@ -324,7 +363,7 @@ public class PluginFrame extends javax.swing.JFrame {
                 load(newXml);
             } catch (IllegalPluginException ex) {
                 PluginEditor.showErrorMessage(ex.getMsg());
-                pluginPath = oldPluginPath;              
+                pluginPath = oldPluginPath;
             }
         }
     }//GEN-LAST:event_openMenuItemActionPerformed
@@ -349,13 +388,19 @@ public class PluginFrame extends javax.swing.JFrame {
         PluginEditor.openConfigDialog();
     }//GEN-LAST:event_settingsItemActionPerformed
 
+    private void buildItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buildItemActionPerformed
+        buildJar();
+    }//GEN-LAST:event_buildItemActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem buildItem;
     private javax.swing.JLabel changeLabel;
     private javax.swing.JMenuItem closeMenuItem;
     protected javax.swing.JTabbedPane fileContainer;
     private javax.swing.JPanel footerPanel;
     protected javax.swing.JTabbedPane infoContainer;
+    private javax.swing.JButton jButton1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
@@ -370,23 +415,24 @@ public class PluginFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem renameItem;
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JMenuItem settingsItem;
+    private javax.swing.JLabel statusIcon;
     private javax.swing.JTextField statusMsg;
     // End of variables declaration//GEN-END:variables
 
     /**
      * Ask the user for a plugin path.
-     * 
+     *
      * @return The selected path. If the selection is aborted null is returned.
      */
     protected String askForPlugin() {
         String dir = null;
-        
+
         JFileChooser chooser = new JFileChooser();
         FileFilter filter = new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.isDirectory();
-            }            
+            }
 
             @Override
             public String getDescription() {
@@ -398,10 +444,12 @@ public class PluginFrame extends javax.swing.JFrame {
         chooser.setDialogTitle("Choose directory of plugin");
         chooser.setApproveButtonText("Choose directory");
 
-        if (pluginPath != null) chooser.setCurrentDirectory((new File(pluginPath)).getParentFile());
+        if (pluginPath != null) {
+            chooser.setCurrentDirectory((new File(pluginPath)).getParentFile());
+        }
 
         int returnVal = chooser.showOpenDialog(null);
-        
+
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File pluginDir = chooser.getSelectedFile();
             dir = pluginDir.getAbsolutePath();
@@ -409,13 +457,13 @@ public class PluginFrame extends javax.swing.JFrame {
 
         return dir;
     }
-    
-    
+
     /**
      * Open the plugin path and return the describing plugin.xml.
      *
      * @return The Document representing plugin.xml.
-     * @throws IllegalPluginException If the plugin is corrupted or can't be created.
+     * @throws IllegalPluginException If the plugin is corrupted or can't be
+     * created.
      */
     protected Document openPluginPath() throws IllegalPluginException {
         Document xml = null;
@@ -436,10 +484,9 @@ public class PluginFrame extends javax.swing.JFrame {
         if (!xmlFile.exists()) {
             // If it doesn't exist, create it from template
             askForSystem();
-            writeTemplate("templates/plugin.tmpl","plugin.xml");
+            writeTemplate("templates/plugin.tmpl", "plugin.xml");
         }
-            
-            
+
         try {
             xml = XMLTool.getXml(xmlFile.toURI().toURL());
         } catch (MalformedURLException ex) {
@@ -447,10 +494,9 @@ public class PluginFrame extends javax.swing.JFrame {
         }
 
         PluginEditor.setLastPluginPath(pluginPath);
-        
+
         return xml;
     }
-    
 
     /**
      * Load the plugin from the given XML-Document.
@@ -465,7 +511,7 @@ public class PluginFrame extends javax.swing.JFrame {
             if (plugins.getLength() == 0) {
                 throw new IllegalPluginException("No plugin tag defined in plugin.xml");
             }
-            
+
             try {
                 plugin = (Element) plugins.item(0);
             } catch (ClassCastException ex) {
@@ -474,24 +520,61 @@ public class PluginFrame extends javax.swing.JFrame {
 
             String system = plugin.getAttribute("system");
             systemManager = systems.get(system);
-            if ( systemManager == null ) {
+            if (systemManager == null) {
                 throw new IllegalPluginException("Unknown System " + system);
             }
-            
-            pathField.setText("[" + systemManager.getSystem() + "] " + pluginPath );
-            
-            // Now load the panels
-            infoPanel.load(plugin);
-            featurePanel.load(plugin);
-            languagePanel.load(plugin);
-            filesPanel.load(plugin);
+
+            pathField.setText("[" + systemManager.getSystem() + "] " + pluginPath);
+
+            // Reset the panels
+            for (Component panelRaw : infoContainer.getComponents()) {
+                try {
+                    PluginPanel panel = (PluginPanel) panelRaw;
+                    if (!panel.isBasePanel()) {
+                        infoContainer.remove(panelRaw);
+                    }
+                } catch (ClassCastException ex) {
+                }
+            }
+
+            for (Component panelRaw : fileContainer.getComponents()) {
+                try {
+                    PluginPanel panel = (PluginPanel) panelRaw;
+                    if (!panel.isBasePanel()) {
+                        fileContainer.remove(panelRaw);
+                    }
+                } catch (ClassCastException ex) {
+                }
+            }
+
+            // Insert the system specific panel
+            systemManager.initPanels();
+
+            // Reset the panels
+            for (Component panelRaw : infoContainer.getComponents()) {
+                try {
+                    PluginPanel panel = (PluginPanel) panelRaw;
+                    panel.load(plugin);
+                } catch (ClassCastException ex) {
+                }
+            }
+
+            for (Component panelRaw : fileContainer.getComponents()) {
+                try {
+                    PluginPanel panel = (PluginPanel) panelRaw;
+                    panel.load(plugin);
+                } catch (ClassCastException ex) {
+                }
+            }
+
+            infoContainer.setSelectedComponent(infoPanel);
         }
     }
 
     /**
      * Save the current plugin.
-     * 
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     protected void save() throws IOException {
         File xmlFile = new File(pluginPath, "plugin.xml");
@@ -505,27 +588,26 @@ public class PluginFrame extends javax.swing.JFrame {
             Document xml = builder.newDocument();
             Element root = (Element) xml.createElement("plugin");
             xml.appendChild(root);
-            
+
             String system = systemManager.getSystem();
             root.setAttribute("system", system);
 
-            
-            for ( Component panelRaw : infoContainer.getComponents() ) {
+            for (Component panelRaw : infoContainer.getComponents()) {
                 try {
                     PluginPanel panel = (PluginPanel) panelRaw;
-                    panel.save(xml,root);
-                } catch ( ClassCastException ex )  {}
+                    panel.save(xml, root);
+                } catch (ClassCastException ex) {
+                }
             }
 
-            
-            for ( Component panelRaw : fileContainer.getComponents() ) {
+            for (Component panelRaw : fileContainer.getComponents()) {
                 try {
                     PluginPanel panel = (PluginPanel) panelRaw;
-                    panel.save(xml,root);
-                } catch ( ClassCastException ex )  {}
+                    panel.save(xml, root);
+                } catch (ClassCastException ex) {
+                }
             }
 
-            
             String text = XMLTool.documentToString(xml);
             // System.out.println(text);
             File file = new File(pluginPath + "/plugin.xml");
@@ -538,26 +620,61 @@ public class PluginFrame extends javax.swing.JFrame {
     }
 
     /**
+     * Call build on all panels. Abort as soon as one returns an error.
+     * @return 
+     */
+    public boolean build() {
+        try {
+            save();
+        } catch (IOException ex) {
+            setStatusMsg("Couldn't save the plugin");
+            return false;
+        }
+        
+        // Reset the panels
+        for (Component panelRaw : infoContainer.getComponents()) {
+            try {
+                PluginPanel panel = (PluginPanel) panelRaw;
+                if ( !panel.build() ) {
+                    return false;
+                }
+            } catch (ClassCastException ex) {
+            }
+        }
+
+        for (Component panelRaw : fileContainer.getComponents()) {
+            try {
+                PluginPanel panel = (PluginPanel) panelRaw;
+                if ( !panel.build() ) {
+                    return false;
+                }
+            } catch (ClassCastException ex) {
+            }            
+        }
+        
+        return true;
+    }
+
+    /**
      * Quit the program.
      */
     protected void quit() {
-        if ( changed ) {
-            int choice = JOptionPane.showConfirmDialog(this, "Save the plugin", "abbozza! Plugin Editor", JOptionPane.YES_NO_CANCEL_OPTION );
-            if ( choice == JOptionPane.YES_OPTION ) {
-                try { 
+        if (changed) {
+            int choice = JOptionPane.showConfirmDialog(this, "Save the plugin", "abbozza! Plugin Editor", JOptionPane.YES_NO_CANCEL_OPTION);
+            if (choice == JOptionPane.YES_OPTION) {
+                try {
                     save();
                 } catch (IOException ex) {
                     this.setStatusMsg("Could not save plugin!");
                 }
-            } else if ( choice == JOptionPane.NO_OPTION ) {
-                dispose();        
-            }        
+            } else if (choice == JOptionPane.NO_OPTION) {
+                dispose();
+            }
         } else {
-            dispose();                    
+            dispose();
         }
         HelpFrame.hideFrame();
     }
-    
 
     /**
      * Display the given status nessage
@@ -566,7 +683,19 @@ public class PluginFrame extends javax.swing.JFrame {
      */
     public void setStatusMsg(String msg) {
         statusMsg.setText(msg);
+        statusIcon.setIcon(null);
     }
+
+    /**
+     * Display the given status nessage
+     *
+     * @param msg
+     */
+    public void setErrorMsg(String msg) {
+        statusMsg.setText(msg);
+        statusIcon.setIcon(new ImageIcon(errorIcon));        
+    }
+
 
     /**
      * Update the change indicator.
@@ -579,10 +708,9 @@ public class PluginFrame extends javax.swing.JFrame {
         }
     }
 
-    
     /**
      * Return the id of the current plugin.
-     * 
+     *
      * @return The id.
      */
     public String getId() {
@@ -591,32 +719,33 @@ public class PluginFrame extends javax.swing.JFrame {
 
     /**
      * Returns the system of the plugin.
-     * @return 
+     *
+     * @return
      */
     public String getSystem() {
         return systemManager.getSystem();
     }
-    
+
     /**
      * Get the content of the given file as String.
-     * 
+     *
      * @param entry
-     * @return 
+     * @return
      */
     public String getFileContent(FileEntry entry) {
         StringBuffer content = new StringBuffer();
         int bufSize = 2048;
         int read;
         char[] buf = new char[bufSize];
-        
+
         File file = new File(this.pluginPath + "/" + entry.getName());
-        if ( !file.exists() ) {
+        if (!file.exists()) {
             try {
                 // The file doesn't exist, read the tempate
-                InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("templates/javascript.tmpl"));
-                while (reader.ready() ) {
-                    read = reader.read(buf,0,bufSize);
-                    content.append(buf, 0, read);            
+                InputStreamReader reader = new InputStreamReader(PluginEditor.class.getResourceAsStream("templates/javascript.tmpl"));
+                while (reader.ready()) {
+                    read = reader.read(buf, 0, bufSize);
+                    content.append(buf, 0, read);
                 }
             } catch (IOException ex) {
                 Logger.getLogger(PluginFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -625,8 +754,8 @@ public class PluginFrame extends javax.swing.JFrame {
             try {
                 // Load the file
                 FileReader reader = new FileReader(file);
-                while (reader.ready() ) {
-                    read = reader.read(buf,0,bufSize);
+                while (reader.ready()) {
+                    read = reader.read(buf, 0, bufSize);
                     content.append(buf, 0, read);
                 }
             } catch (MalformedURLException ex) {
@@ -635,22 +764,21 @@ public class PluginFrame extends javax.swing.JFrame {
                 Logger.getLogger(PluginFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
+
         return content.toString();
     }
-    
-    
+
     /**
      * Write the content to the given file.
-     * 
+     *
      * @param entry The FileEntry representing the file
-     * @param content  The content to be written
+     * @param content The content to be written
      */
     public void writeFileContent(FileEntry entry, String content) {
         int bufSize = 2048;
         int read;
         char[] buf = new char[bufSize];
-        
+
         try {
             File file = new File(this.pluginPath + "/" + entry.getName());
             FileWriter writer = new FileWriter(file);
@@ -658,22 +786,23 @@ public class PluginFrame extends javax.swing.JFrame {
             writer.close();
         } catch (IOException ex) {
             PluginEditor.showErrorMessage("Can't write to " + this.pluginPath + "/" + entry.getName());
-        }        
+        }
     }
-    
-    
+
     /**
-     * Write a specific template to the given target. 
-     * 
-     * The following placeholders are replaced:
-     * %%SYSTEM%% by the current system-
-     * 
+     * Write a specific template to the given target.
+     *
+     * The following placeholders are replaced: %%SYSTEM%% by the current
+     * system-
+     *
      * @param template
-     * @param target 
+     * @param target
      */
     public void writeTemplate(String template, String target) {
-        if ( template == null ) return;
-            
+        if (template == null) {
+            return;
+        }
+
         StringBuffer buffer = new StringBuffer();
         int bufSize = 2048;
         int read;
@@ -681,18 +810,19 @@ public class PluginFrame extends javax.swing.JFrame {
 
         try {
             File targetFile = new File(this.pluginPath + "/" + target);
-        
+
             // The file doesn't exist, read the tempate
             InputStreamReader reader = new InputStreamReader(PluginEditor.getResourceAsStream(template));
-            while (reader.ready() ) {
-                read = reader.read(buf,0,bufSize);
-                buffer.append(buf,0,read);
+            while (reader.ready()) {
+                read = reader.read(buf, 0, bufSize);
+                buffer.append(buf, 0, read);
             }
 
             // Now replace the placeholders
             String content = buffer.toString();
-            content = content.replace("%%SYSTEM%%",systemManager.getSystem());
-            
+            content = content.replace("%%SYSTEM%%", systemManager.getSystem());
+            content = content.replace("%%CLASSNAME%%", target.replace(".java", ""));
+
             // Now write it to the target
             FileWriter writer = new FileWriter(targetFile);
             writer.write(content);
@@ -700,7 +830,7 @@ public class PluginFrame extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(PluginFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
     /**
@@ -710,22 +840,85 @@ public class PluginFrame extends javax.swing.JFrame {
         SystemDialog dialog = new SystemDialog(this);
         GUITool.centerWindow(dialog);
         dialog.setVisible(true);
-        
-        if ( dialog.getState() == 0 ) {
+
+        if (dialog.getState() == 0) {
             systemManager = dialog.getSystem();
         } else {
             System.exit(1);
         }
     }
-    
+
     public String getPluginPath() {
         return pluginPath;
     }
 
-    public void addFileContainerPanel(JPanel panel, String title, boolean closable) {
+    public void addFileContainerPanel(JPanel panel, boolean closable) {
         fileContainer.add(panel);
-        if ( closable ) fileContainer.setTabComponentAt(fileContainer.indexOfComponent(panel), new ClosableTabPanel(fileContainer, panel, title));
+        if (closable) {
+            fileContainer.setTabComponentAt(fileContainer.indexOfComponent(panel), new ClosableTabPanel(fileContainer, panel, panel.getName()));
+        }
         fileContainer.setSelectedComponent(panel);
     }
-    
+
+    public void addInfoContainerPanel(JPanel panel, boolean closable) {
+        infoContainer.add(panel);
+        if (closable) {
+            infoContainer.setTabComponentAt(infoContainer.indexOfComponent(panel), new ClosableTabPanel(infoContainer, panel, panel.getName()));
+        }
+        infoContainer.setSelectedComponent(panel);
+    }
+
+    /**
+     * Build a jar containig all files in the plugin directory.
+     */
+    public void buildJar() {
+        if ( !build() ) return;
+
+        File source = new File(pluginPath);
+        File target;
+        
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Jar File", "jar");
+        chooser.setFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            target = chooser.getSelectedFile();
+        } else {
+            return;
+        }
+        
+        try {
+            JarOutputStream out = new JarOutputStream(new FileOutputStream(target));
+            Files.walkFileTree( source.toPath(), new FileVisitor<Path>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String name = file.toRealPath().toString();
+                    name = name.replace(pluginPath + "/","");
+                    System.out.println(name);
+                    out.putNextEntry(new ZipEntry(name));
+                    Files.copy(file, out);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            out.close();
+        } catch (IOException ex) {
+            Logger.getLogger(PluginFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+        
 }

@@ -50,7 +50,7 @@ public class XMLTool {
 
     /**
      * This operation converts a XML-document to a string representation.
-     * 
+     *
      * @param doc The XML-document
      * @return The string representation of the XML-document
      */
@@ -72,6 +72,7 @@ public class XMLTool {
 
     /**
      * This operation converts a XML-node to a string representation.
+     *
      * @param doc The node
      * @return The String representation
      */
@@ -93,6 +94,7 @@ public class XMLTool {
 
     /**
      * This operation reads an XML-ducument from the given URL
+     *
      * @param url The URL of the XML-document
      * @return The document
      */
@@ -112,9 +114,10 @@ public class XMLTool {
         }
         return xml;
     }
-    
+
     /**
      * This operation reads an XML-ducument from the given URL
+     *
      * @param url The URL of the XML-document
      * @param timeout The time till the connection times out in ms
      * @return The document
@@ -137,14 +140,13 @@ public class XMLTool {
         return xml;
     }
 
-    
     public static Document documentFromString(String text) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             InputSource is = new InputSource();
             is.setCharacterStream(new StringReader(text));
-            
+
             Document doc = db.parse(is);
             return doc;
         } catch (ParserConfigurationException ex) {
@@ -156,22 +158,20 @@ public class XMLTool {
         }
         return null;
     }
-    
-    
+
     public static String getStringAttribute(Node node, String name, String def) {
         NamedNodeMap attrs = node.getAttributes();
         Node attr = attrs.getNamedItem(name);
-        if ( attr != null ) {
+        if (attr != null) {
             return attr.getTextContent();
         }
         return def;
     }
-    
 
     public static String getTextContent(Document doc, String tag) {
         String result = "";
         NodeList nodes = doc.getElementsByTagName(tag);
-        for ( int i = 0; i < nodes.getLength(); i++ ) {
+        for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             result = result + node.getTextContent();
         }
@@ -181,79 +181,95 @@ public class XMLTool {
     public static String getTextContent(Element el, String tag) {
         String result = "";
         NodeList nodes = el.getElementsByTagName(tag);
-        for ( int i = 0; i < nodes.getLength(); i++ ) {
+        for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             result = result + node.getTextContent();
         }
         return result;
     }
 
-    
     public static Element getFirstElement(Document doc, String tag) {
         Element el = null;
         NodeList els = doc.getElementsByTagName(tag);
-        if ( els.getLength() > 0 ) {
-           el = (Element) els.item(0);
+        if (els.getLength() > 0) {
+            el = (Element) els.item(0);
         }
         return el;
     }
-    
+
     public static Element getFirstElement(Element doc, String tag) {
         Element el = null;
         NodeList els = doc.getElementsByTagName(tag);
-        if ( els.getLength() > 0 ) {
-           el = (Element) els.item(0);
+        if (els.getLength() > 0) {
+            el = (Element) els.item(0);
         }
         return el;
     }
 
-
     /**
-     * Construct a string representing the children of the given element 
-     * having the given tag.
+     * Construct a string representing the children of the given element having
+     * the given tag.
+     *
      * @param element The parent
      * @param tag The tag
      * @return A String representing all children of the given type.
      */
     public static String elementsToString(Element element, String tag) {
         String result = null;
-        
-        if ( element == null ) return null;
+
+        if (element == null) {
+            return null;
+        }
         NodeList els = element.getElementsByTagName(tag);
         Element el;
-        for ( int i = 0; i < els.getLength(); i++ ) {
+        for (int i = 0; i < els.getLength(); i++) {
             el = (Element) els.item(i);
-            if ( i > 0 ) {
+            if (i > 0) {
                 result = result + "\n";
             } else {
                 result = "";
             }
             result = result + toString(el);
         }
-        
+
         return result;
     }
-    
-    
+
     public static String toString(Element element) {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");            
-            
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
             StreamResult result = new StreamResult(new StringWriter());
             DOMSource source = new DOMSource(element);
             transformer.transform(source, result);
-            
+
             String xmlString = result.getWriter().toString();
             return xmlString;
         } catch (TransformerConfigurationException ex) {
             return "";
         } catch (TransformerException ex) {
-            return ""; 
+            return "";
         }
     }
-    
+
+    public static String childrenToString(Element el) {
+        String result = "";
+        NodeList children = el.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Element child = null;
+            try {
+                child = (Element) children.item(i);
+            } catch (Exception ex) {}
+            if (child != null ) {
+                result = result + XMLTool.toString(child);
+            }
+        }
+
+        return result;
+    }
+
 }

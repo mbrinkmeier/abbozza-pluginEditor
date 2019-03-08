@@ -33,9 +33,8 @@ public class HelpFrame extends javax.swing.JFrame {
         if (instance == null) {
             instance = new HelpFrame();
             GUITool.centerWindow(instance);
-        } else {
-            setItem(item);
         }
+        setItem(item);
         instance.setVisible(true);
     }
     

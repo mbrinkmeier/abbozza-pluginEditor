@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.uos.inf.did.abbozza.plugineditor;
+package de.uos.inf.did.abbozza.plugineditor.gui;
 
+import de.uos.inf.did.abbozza.plugineditor.IllegalPluginException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -27,5 +28,9 @@ public interface PluginPanel {
     public void load(Element plugin) throws IllegalPluginException;
     
     public void save(Document xml, Element plugin);
+    
+    public boolean build();
+    
+    public boolean isBasePanel();
 
 }

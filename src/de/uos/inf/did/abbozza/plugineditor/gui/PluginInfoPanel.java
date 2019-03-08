@@ -16,8 +16,11 @@
 package de.uos.inf.did.abbozza.plugineditor.gui;
 
 import de.uos.inf.did.abbozza.plugineditor.IllegalPluginException;
-import de.uos.inf.did.abbozza.plugineditor.PluginPanel;
 import de.uos.inf.did.abbozza.plugineditor.XMLTool;
+import java.text.ParseException;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -89,11 +92,23 @@ public class PluginInfoPanel extends javax.swing.JPanel implements PluginPanel {
             }
         });
 
-        try {
-            idField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")));
-        } catch (java.text.ParseException ex) {
-            ex.printStackTrace();
-        }
+        idField.setFormatterFactory(new AbstractFormatterFactory() {
+            @Override
+            public AbstractFormatter getFormatter(JFormattedTextField tf) {
+                return new AbstractFormatter() {
+                    @Override
+                    public Object stringToValue(String text) throws ParseException {
+                        return text.replaceAll("\\W","");
+                    }
+
+                    @Override
+                    public String valueToString(Object value) throws ParseException {
+                        if ( value == null ) return "";
+                        return value.toString();
+                    }
+                };
+            }
+        });
         idField.setToolTipText("<html>\nThis is the id of the plugin.<br/>\nIt is used as part of the URL to access the<br/>\ncontents and services provided by teh plugin.<br/>\n<br/>\nIts maximal length is 32 characters and it may only<br/>\nconsist of letters and digits.\n</html>");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -203,4 +218,12 @@ public class PluginInfoPanel extends javax.swing.JPanel implements PluginPanel {
     private javax.swing.JTextField nameField;
     private javax.swing.JComboBox<String> parentComboBox;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public boolean isBasePanel() {
+        return true;
+    }
+
+    @Override
+    public boolean build() { return true; }
 }

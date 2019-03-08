@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.uos.inf.did.abbozza.plugineditor;
+package de.uos.inf.did.abbozza.plugineditor.gui;
 
+import de.uos.inf.did.abbozza.plugineditor.XMLTool;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -22,6 +23,7 @@ import java.util.LinkedHashMap;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -131,6 +133,7 @@ public class LanguageTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int rowIndex, int columnIndex) {   
         String val = value.toString();
         String id = idArray[rowIndex];
+        
                 
         if ( columnIndex == 0 ) {
             // If the id is changed, keep the messages for all languages
@@ -140,6 +143,8 @@ public class LanguageTableModel extends AbstractTableModel {
                 msgs.remove(id + "_" + lang);
                 if (msg != null) msgs.put(val + "_" + lang,msg);
             }
+            ids.remove(id);
+            ids.add(val);
         } else {
             // Just change the message
             msgs.put(id + "_" + language,val);
@@ -183,4 +188,22 @@ public class LanguageTableModel extends AbstractTableModel {
         return true;
     }
 
+    /**
+     * Add an Id to the list of ids.
+     * @param id 
+     */
+    public void addId(String id) {
+        ids.add(id);
+        idArray = new String[ids.size()];
+        ids.toArray(idArray);
+        System.out.println(ids.size());
+    }
+    
+    public void delId(int id) {
+        if ( (id < 0) || ( id>= idArray.length ) ) return;
+        String msg = idArray[id];
+        ids.remove(msg);
+        idArray = new String[ids.size()];
+        ids.toArray(idArray);
+    }
 }

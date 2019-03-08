@@ -15,11 +15,17 @@
  */
 package de.uos.inf.did.abbozza.plugineditor.systems;
 
+import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
+
 /**
  *
  * @author michael
  */
 public class CalliopeManager extends SystemManager {
+
+    public CalliopeManager(PluginFrame frame) {
+        super(frame);
+    }
 
     @Override
     public String getSystem() {

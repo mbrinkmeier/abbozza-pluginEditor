@@ -13,28 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.uos.inf.did.abbozza.plugineditor.systems;
-
-import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
+package de.uos.inf.did.abbozza.plugineditor.gui;
 
 /**
  *
  * @author michael
  */
-public class MonitorManager extends SystemManager {
-
-    public MonitorManager(PluginFrame frame) {
-        super(frame);
-    }
-
-    @Override
-    public String getSystem() {
-        return "monitor";
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "abbozza! Monitor";
-    }
+public class AbstractMouseListener {
     
 }
