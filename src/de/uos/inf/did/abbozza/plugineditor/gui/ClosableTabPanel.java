@@ -15,21 +15,30 @@
  */
 package de.uos.inf.did.abbozza.plugineditor.gui;
 
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
  * @author michael
  */
-public class ClosableTabPanel extends javax.swing.JPanel {
+public class ClosableTabPanel extends javax.swing.JPanel implements ChangeListener {
 
+    private final JPanel panel;
+    private final JTabbedPane tabbedPane;
     /**
      * Creates new form ClosableTabPanel
      */
     public ClosableTabPanel(JTabbedPane tabbedPane, JPanel panel, String title) {
+        this.panel = panel;
+        this.tabbedPane = tabbedPane;
+        
         initComponents();
 
         titleLabel.setText(title);
@@ -43,11 +52,13 @@ public class ClosableTabPanel extends javax.swing.JPanel {
         });
         
         titleLabel.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 tabbedPane.setSelectedComponent(panel);
             }
         });
         
+        tabbedPane.addChangeListener(this);
     }
 
     /**
@@ -63,27 +74,39 @@ public class ClosableTabPanel extends javax.swing.JPanel {
         closeButton = new javax.swing.JButton();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, 0));
+        setMaximumSize(new java.awt.Dimension(32767, 20));
+        setMinimumSize(new java.awt.Dimension(86, 20));
+        setOpaque(false);
         setPreferredSize(null);
-        java.awt.FlowLayout flowLayout1 = new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0);
-        flowLayout1.setAlignOnBaseline(true);
-        setLayout(flowLayout1);
+        setRequestFocusEnabled(false);
+        setLayout(new java.awt.BorderLayout());
 
-        titleLabel.setText("jLabel1");
+        titleLabel.setText("XXX");
         titleLabel.setToolTipText("");
         titleLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 2));
         titleLabel.setInheritsPopupMenu(false);
-        titleLabel.setMaximumSize(new java.awt.Dimension(2048, 20));
-        titleLabel.setMinimumSize(new java.awt.Dimension(51, 20));
+        titleLabel.setMaximumSize(new java.awt.Dimension(32000, 15));
+        titleLabel.setMinimumSize(new java.awt.Dimension(10, 15));
         titleLabel.setPreferredSize(null);
-        add(titleLabel);
+        add(titleLabel, java.awt.BorderLayout.WEST);
 
         closeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/uos/inf/did/abbozza/plugineditor/close.png"))); // NOI18N
+        closeButton.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         closeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        closeButton.setMaximumSize(new java.awt.Dimension(20, 20));
-        closeButton.setMinimumSize(new java.awt.Dimension(20, 20));
-        closeButton.setPreferredSize(new java.awt.Dimension(20, 20));
-        add(closeButton);
+        closeButton.setMaximumSize(new java.awt.Dimension(16, 16));
+        closeButton.setMinimumSize(new java.awt.Dimension(16, 16));
+        closeButton.setPreferredSize(new java.awt.Dimension(16, 16));
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeButtonActionPerformed(evt);
+            }
+        });
+        add(closeButton, java.awt.BorderLayout.EAST);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_closeButtonActionPerformed
 
 
     public void setTitle(String title) {
@@ -94,5 +117,14 @@ public class ClosableTabPanel extends javax.swing.JPanel {
     private javax.swing.JButton closeButton;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if ( tabbedPane.getSelectedComponent() == panel ) {
+            this.setBackground(UIManager.getColor("activeCaption")); 
+        } else {
+            this.setBackground(null);            
+        }
+    }
 
 }

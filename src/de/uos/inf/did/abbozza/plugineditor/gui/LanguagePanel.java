@@ -19,22 +19,17 @@ import de.uos.inf.did.abbozza.plugineditor.IllegalPluginException;
 import de.uos.inf.did.abbozza.plugineditor.gui.PluginPanel;
 import de.uos.inf.did.abbozza.plugineditor.gui.LanguageTableModel;
 import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  *
  * @author michael
  */
-public class PluginLanguagePanel extends javax.swing.JPanel implements PluginPanel {
+public class LanguagePanel extends javax.swing.JPanel implements PluginPanel {
     
     protected PluginFrame frame;
     protected RSyntaxTextArea editor;
@@ -43,11 +38,13 @@ public class PluginLanguagePanel extends javax.swing.JPanel implements PluginPan
     /**
      * Creates new form PluginInfoPanel
      */
-    public PluginLanguagePanel(PluginFrame frame) {
+    public LanguagePanel(PluginFrame frame) {
         this.frame = frame;
         tableModel = new LanguageTableModel(this);
         
         initComponents();
+        
+        tableModel.addTableModelListener(frame);
     }
 
 
@@ -177,7 +174,7 @@ public class PluginLanguagePanel extends javax.swing.JPanel implements PluginPan
     }//GEN-LAST:event_helpButtonActionPerformed
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        tableModel.addId("");
+        tableModel.newId("");
         msgTable.updateUI();
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -200,9 +197,9 @@ public class PluginLanguagePanel extends javax.swing.JPanel implements PluginPan
     private javax.swing.JTable msgTable;
     // End of variables declaration//GEN-END:variables
 
-    public void setLanguages(String[] languages) {
+    public void setLanguages(ArrayList<String> languages) {
         String oldLang = (String) localeComboBox.getSelectedItem();
-        this.localeComboBox.setModel(new DefaultComboBoxModel( languages ));
+        this.localeComboBox.setModel(new DefaultComboBoxModel( languages.toArray() ));
         tableModel.setLanguage((String) localeComboBox.getSelectedItem());
         if ( oldLang != null ) localeComboBox.setSelectedItem(oldLang);
     }

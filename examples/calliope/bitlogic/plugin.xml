@@ -1,12 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <plugin id="bitlogic" parent="advanced" system="calliopeC">
 <name>BitLogic</name>
-<description>This plugin provides blocks for doing bitwise operations on integers.</description>
+<description>This plugin provides blocks for bitwise operations on integers.</description>
 <js file="blocks.js"/>
 <feature id="feat.bitlogic" option="bitlogic.enabled">
 <category id="cat.MATH">
-   <block type="bitlogic_operation"/>
-   <!-- block type="bitlogic_shift"/-->
+   
+   <!-- The operations block with two unconfirmed number blocks -->
+   <block type="bitlogic_operation">
+      <value name="LEFT">
+         <block type="math_number">
+<mutation confirmed="false"/>
+            <value name="VALUE">42</value>
+         </block>
+      </value>
+      <value name="RIGHT">
+         <block type="math_number">
+<mutation confirmed="false"/>
+            <value name="VALUE">0</value>
+         </block>
+      </value>
+   </block>
+
+   <!-- The bitwise negation -->
+   <block type="bitlogic_not">
+      <value name="VALUE">
+         <block type="math_number">
+<mutation confirmed="false"/>
+            <value name="VALUE">0</value>
+         </block>
+      </value>
+   </block>
+
+   <!-- The bitwise shift with two unconfirmed number blocks -->
+   <block type="bitlogic_shift">
+      <value name="VALUE">
+         <block type="math_number">
+<mutation confirmed="false"/>
+            <value name="VALUE">42</value>
+         </block>
+      </value>
+      <value name="SHIFT">
+         <block type="math_number">
+<mutation confirmed="false"/>
+            <value name="VALUE">1</value>
+         </block>
+      </value>
+   </block>
 </category>
 </feature>
 <options>
@@ -19,12 +59,14 @@
 <language id="de">
 <msg id="bitlogic.op_not">Bitweise Negation</msg>
 <msg id="cat.BITLOGIC">Bitweise Operationen</msg>
-<msg id="bitlogic.op_tooltip">Bitweise Operationen</msg>
+<msg id="bitlogic.op_tooltip">Bitweise Operation; &amp; is AND, | ist OR, ^ist XOR</msg>
+<msg id="bitlogic.shift_tooltip">Bitweises Shift nach links (&lt;&lt;) oder rechts (&gt;&gt;)</msg>
 </language>
 <language id="en">
 <msg id="bitlogic.op_not">Bitwise negation</msg>
 <msg id="cat.BITLOGIC">Bitwise Operations</msg>
-<msg id="bitlogic.op_tooltip">Bitwise operations</msg>
+<msg id="bitlogic.op_tooltip">Bitwise operations; &amp; is AND, | is OR, ^ is XOR</msg>
+<msg id="bitlogic.shift_tooltip">Bitwise shift to the left (&lt;&lt;) or right (&gt;&gt;)</msg>
 </language>
 </locales>
 </plugin>

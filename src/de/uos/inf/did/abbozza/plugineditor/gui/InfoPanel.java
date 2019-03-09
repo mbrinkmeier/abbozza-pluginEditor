@@ -21,6 +21,8 @@ import java.text.ParseException;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.JFormattedTextField.AbstractFormatterFactory;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -28,16 +30,21 @@ import org.w3c.dom.Element;
  *
  * @author michael
  */
-public class PluginInfoPanel extends javax.swing.JPanel implements PluginPanel {
+public class InfoPanel extends javax.swing.JPanel implements PluginPanel {
 
     protected PluginFrame frame;
-    
+
     /**
      * Creates new form PluginInfoPanel
      */
-    public PluginInfoPanel(PluginFrame frame) {
+    public InfoPanel(PluginFrame frame) {
         this.frame = frame;
         initComponents();
+
+        idField.getDocument().addDocumentListener(frame);
+        nameField.getDocument().addDocumentListener(frame);
+        parentComboBox.addItemListener(frame);
+        descriptionArea.getDocument().addDocumentListener(frame);
     }
 
     /**
@@ -70,6 +77,11 @@ public class PluginInfoPanel extends javax.swing.JPanel implements PluginPanel {
         jLabel3.setText("Display Name");
 
         nameField.setToolTipText("<html>The displayed name.</html>");
+        nameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameFieldActionPerformed(evt);
+            }
+        });
 
         descriptionArea.setColumns(20);
         descriptionArea.setLineWrap(true);
@@ -110,6 +122,11 @@ public class PluginInfoPanel extends javax.swing.JPanel implements PluginPanel {
             }
         });
         idField.setToolTipText("<html>\nThis is the id of the plugin.<br/>\nIt is used as part of the URL to access the<br/>\ncontents and services provided by teh plugin.<br/>\n<br/>\nIts maximal length is 32 characters and it may only<br/>\nconsist of letters and digits.\n</html>");
+        idField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                idFieldActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -161,6 +178,14 @@ public class PluginInfoPanel extends javax.swing.JPanel implements PluginPanel {
     private void helpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpButtonActionPerformed
         HelpFrame.open("infopanel");
     }//GEN-LAST:event_helpButtonActionPerformed
+
+    private void nameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
+        frame.setChanged(true);
+    }//GEN-LAST:event_nameFieldActionPerformed
+
+    private void idFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_idFieldActionPerformed
+        frame.setChanged(true);
+    }//GEN-LAST:event_idFieldActionPerformed
  
     /**
      * Load the information from the plugin Element

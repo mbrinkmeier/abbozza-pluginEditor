@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
  *
  * @author michael
  */
-public class PluginFeaturePanel extends javax.swing.JPanel implements PluginPanel {
+public class FeaturePanel extends javax.swing.JPanel implements PluginPanel {
 
     protected static String defaultFeature
             = "<category name=\"category\" id=\"cat.CATEGORY\" color=\"#FF00FF\">\n"
@@ -47,7 +47,7 @@ public class PluginFeaturePanel extends javax.swing.JPanel implements PluginPane
     /**
      * Creates new form PluginInfoPanel
      */
-    public PluginFeaturePanel(PluginFrame frame) {
+    public FeaturePanel(PluginFrame frame) {
         this.frame = frame;
         initComponents();
 

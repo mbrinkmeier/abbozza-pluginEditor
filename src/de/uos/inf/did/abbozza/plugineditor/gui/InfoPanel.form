@@ -99,6 +99,9 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The displayed name.&lt;/html&gt;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="nameFieldActionPerformed"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
       <AuxValues>
@@ -159,6 +162,9 @@
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;This is the id of the plugin.&lt;br/&gt;&#xa;It is used as part of the URL to access the&lt;br/&gt;&#xa;contents and services provided by teh plugin.&lt;br/&gt;&#xa;&lt;br/&gt;&#xa;Its maximal length is 32 characters and it may only&lt;br/&gt;&#xa;consist of letters and digits.&#xa;&lt;/html&gt;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="idFieldActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

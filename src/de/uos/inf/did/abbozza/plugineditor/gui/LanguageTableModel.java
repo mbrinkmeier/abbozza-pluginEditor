@@ -16,14 +16,9 @@
 package de.uos.inf.did.abbozza.plugineditor.gui;
 
 import de.uos.inf.did.abbozza.plugineditor.XMLTool;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -34,23 +29,26 @@ import org.w3c.dom.NodeList;
  */
 public class LanguageTableModel extends AbstractTableModel {    
 
-    private HashSet<String> ids;
-    private String[] idArray;
-    private HashSet<String> languages;
-    private String[] languageArray;
-    private Hashtable<String,String> msgs;
-    private PluginLanguagePanel panel;
-    private String language;
+    private final ArrayList<String> ids;             // The ids of locale entries
+    private final ArrayList<String> languages;       // The languages
+    private final HashMap<String,String> msgs;       // The messages
+    private final LanguagePanel panel;               // The language panel
+    private String language;                         // The current language
     
     
     
-    public LanguageTableModel(PluginLanguagePanel panel) {
+    public LanguageTableModel(LanguagePanel panel) {
         this.panel = panel;
-        ids = new HashSet<String>();
-        languages = new HashSet<String>();
-        msgs = new Hashtable<String,String>();
+        ids = new ArrayList<>();
+        languages = new ArrayList<>();
+        msgs = new HashMap<>();
     }    
     
+    /**
+     * Load the locale froim the given plugin element.
+     * 
+     * @param plugin The plugin element.
+     */
     public void load(Element plugin) {
         ids.clear();
         languages.clear();
@@ -62,8 +60,8 @@ public class LanguageTableModel extends AbstractTableModel {
         NodeList langs = loc.getElementsByTagName("language");
         for ( int i = 0; i < langs.getLength(); i++ ) {
             Element lang = (Element) langs.item(i);
-            String language = lang.getAttribute("id");
-            languages.add(language);
+            String langId = lang.getAttribute("id");
+            languages.add(langId);
             
             NodeList children = lang.getChildNodes();
             for ( int j = 0 ; j < children.getLength(); j++ ) {
@@ -71,37 +69,38 @@ public class LanguageTableModel extends AbstractTableModel {
                     Element child = (Element) children.item(j);
                     if ( child.getTagName().equals("msg") ) {
                         String id = child.getAttribute("id");
-                        ids.add(id);
-                        msgs.put(id +"_" + language, child.getTextContent() );
+                        if ( !ids.contains(id) ) {
+                            ids.add(id);
+                        }
+                        msgs.put(id +"_" + langId, child.getTextContent() );
                     } 
                 } catch (ClassCastException ex) {}
             }
-        }
-        
-        idArray = new String[ids.size()];
-        ids.toArray(idArray);
-               
-        languageArray = new String[languages.size()];
-        languages.toArray(languageArray);        
-        panel.setLanguages(languageArray);
+        }      
+        panel.setLanguages(languages);
     }
     
-    
+    /**
+     * Save teh language entries to the given Document and Element.
+     * 
+     * @param xml The XML-Document
+     * @param plugin  The parent Element
+     */
     public void save(Document xml, Element plugin) {
         Element loc = xml.createElement("locales");
 
-        for ( String lang : languageArray ) {
+        for ( String lang : languages ) {
             Element langEl = xml.createElement("language");
             langEl.setAttribute("id", lang);
             loc.appendChild(langEl);
             
-            for ( String id : idArray ) {
+            for ( String id : ids ) {
                 String msg = msgs.get(id + "_" + lang);
                 if ( msg != null ) {
                     Element msgEl = xml.createElement("msg");
                     msgEl.setAttribute("id", id);
                     msgEl.setTextContent(msg);
-                   langEl.appendChild(msgEl);
+                    langEl.appendChild(msgEl);
                 }
             }
         }
@@ -109,55 +108,78 @@ public class LanguageTableModel extends AbstractTableModel {
     }
     
     
+    /**
+     * REturns the number of ids.
+     * 
+     * @return The number of ids.
+     */
     @Override
     public int getRowCount() {
         return ids.size();
     }
 
+    /**
+     * Return the number of columns
+     * 
+     * @return The number of columns
+     */
     @Override
     public int getColumnCount() {
         return 2;
     }
 
+    /**
+     * Get the value at the specified position.
+     * 
+     * @param rowIndex
+     * @param columnIndex
+     * @return 
+     */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {   
         if ( columnIndex == 0 ) {
-            return idArray[rowIndex];
+            return ids.get(rowIndex);
         } else {
-            String id = idArray[rowIndex];
+            String id = ids.get(rowIndex);
             return msgs.get(id + "_" + language);
         }    
     }
  
+    /**
+     * Set the language entry according to the row number and the current 
+     * language.
+     * 
+     * @param value The value to be set
+     * @param rowIndex The row index
+     * @param columnIndex The column index
+     */
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {   
         String val = value.toString();
-        String id = idArray[rowIndex];
-        
-                
+        String id = ids.get(rowIndex);
+                    
         if ( columnIndex == 0 ) {
             // If the id is changed, keep the messages for all languages
-            idArray[rowIndex] = val;
+            ids.set(rowIndex,val);
             for ( String lang : languages ) {
                 String msg = msgs.get(id + "_" + lang);
                 msgs.remove(id + "_" + lang);
                 if (msg != null) msgs.put(val + "_" + lang,msg);
             }
-            ids.remove(id);
-            ids.add(val);
         } else {
             // Just change the message
             msgs.put(id + "_" + language,val);
         }    
     }
 
-    
+    /**
+     * Set the current display language.
+     * @param lang The language.
+     */
     public void setLanguage(String lang) {
         if ( !languages.contains( lang ) ) {
             languages.add(lang);
-            languageArray = new String[languages.size()];
-            languages.toArray(languageArray);        
-            panel.setLanguages(languageArray);
+            panel.setLanguages(languages);
         }
         language = lang;
     }
@@ -192,18 +214,21 @@ public class LanguageTableModel extends AbstractTableModel {
      * Add an Id to the list of ids.
      * @param id 
      */
-    public void addId(String id) {
-        ids.add(id);
-        idArray = new String[ids.size()];
-        ids.toArray(idArray);
-        System.out.println(ids.size());
+    public void newId(String id) {
+        if ( !ids.contains(id) ) {
+            ids.add(id);
+        }
     }
     
+    
+    /**
+     * Delete a specific entry.
+     * 
+     * @param id 
+     */
     public void delId(int id) {
-        if ( (id < 0) || ( id>= idArray.length ) ) return;
-        String msg = idArray[id];
+        if ( (id < 0) || ( id>= ids.size() ) ) return;
+        String msg = ids.get(id);
         ids.remove(msg);
-        idArray = new String[ids.size()];
-        ids.toArray(idArray);
     }
 }

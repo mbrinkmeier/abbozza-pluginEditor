@@ -19,7 +19,6 @@ import de.uos.inf.did.abbozza.plugineditor.FileEntry;
 import de.uos.inf.did.abbozza.plugineditor.GUITool;
 import de.uos.inf.did.abbozza.plugineditor.IllegalPluginException;
 import de.uos.inf.did.abbozza.plugineditor.PluginEditor;
-import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.ByteArrayOutputStream;
@@ -78,8 +77,10 @@ public class FileEditorPanel extends javax.swing.JPanel implements PluginPanel {
         ac.install(editor);
         ac.setAutoActivationDelay(500);
         ac.setAutoActivationEnabled(true);
+
+        editor.getDocument().addDocumentListener(frame);
         
-        editor.setText( this.frame.getFileContent(this.entry) );
+        editor.setText( this.frame.getFileContent(this.entry) );        
     }
 
     /**

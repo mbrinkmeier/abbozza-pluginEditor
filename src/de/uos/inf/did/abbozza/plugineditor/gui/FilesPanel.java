@@ -41,7 +41,7 @@ import org.w3c.dom.NodeList;
  *
  * @author michael
  */
-public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel {
+public class FilesPanel extends javax.swing.JPanel implements PluginPanel {
         
     protected PluginFrame frame;
     protected DefaultListModel<FileEntry> files;
@@ -50,7 +50,7 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
      * Creates new form PluginFilesPanel
      * @param frame
      */
-    public PluginFilesPanel(PluginFrame frame) {
+    public FilesPanel(PluginFrame frame) {
         files = new DefaultListModel();
         this.frame = frame;
         
@@ -209,6 +209,7 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
             FileEntry entry = new FileEntry(dialog.getName(),dialog.getTarget(),dialog.getFileType(),dialog.getJavaType(),dialog.getPrefix());
             if ( createFile(entry) ) {
                 files.addElement(entry);
+                frame.setChanged(true);
             }
         }
     }//GEN-LAST:event_addButtonActionPerformed
@@ -223,6 +224,7 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
             if ( entry.isDeletable() ) {
                 files.remove(fileList.getSelectedIndex());
                 fileList.setSelectedIndex(-1);
+                frame.setChanged(true);
             }
         }
     }//GEN-LAST:event_delButtonActionPerformed
@@ -278,7 +280,7 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
                 frame.addFileContainerPanel(fileEditor, true);
             }
         } catch (IOException ex) {
-            Logger.getLogger(PluginFilesPanel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FilesPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_openButtonActionPerformed
 
@@ -305,6 +307,7 @@ public class PluginFilesPanel extends javax.swing.JPanel implements PluginPanel 
                 return;
             }
             files.set(idx , newEntry);
+            frame.setChanged(true);
         }
         
     }//GEN-LAST:event_editButtonActionPerformed

@@ -138,31 +138,10 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,2,3,0,0,3,-78"/>
   </AuxValues>
 
-  <Layout>
-    <DimensionLayout dim="0">
-      <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="footerPanel" max="32767" attributes="0"/>
-          <Group type="102" attributes="0">
-              <Component id="infoContainer" min="-2" pref="440" max="-2" attributes="0"/>
-              <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
-              <Component id="fileContainer" max="32767" attributes="0"/>
-          </Group>
-      </Group>
-    </DimensionLayout>
-    <DimensionLayout dim="1">
-      <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="infoContainer" max="32767" attributes="0"/>
-                  <Component id="fileContainer" pref="491" max="32767" attributes="0"/>
-              </Group>
-              <Component id="footerPanel" min="-2" max="-2" attributes="0"/>
-          </Group>
-      </Group>
-    </DimensionLayout>
-  </Layout>
+  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
   <SubComponents>
     <Container class="javax.swing.JPanel" name="footerPanel">
       <Properties>
@@ -171,50 +150,95 @@
             <BevelBorder/>
           </Border>
         </Property>
+        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[32767, 20]"/>
+        </Property>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[0, 20]"/>
+        </Property>
       </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="South"/>
+        </Constraint>
+      </Constraints>
 
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
-                  <Component id="changeLabel" min="-2" pref="16" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
                   <Component id="statusIcon" min="-2" pref="20" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
-                  <Component id="statusMsg" min="-2" pref="597" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="110" max="-2" attributes="0"/>
-                  <Component id="pathField" min="-2" pref="358" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
+                  <Component id="statusMsg" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="changeLabel" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
-                  <Component id="statusMsg" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
-                  <Component id="pathField" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
-                  <Component id="statusIcon" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="statusIcon" min="-2" pref="20" max="-2" attributes="0"/>
+                      <Component id="statusMsg" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="changeLabel">
-          <Properties>
-            <Property name="horizontalAlignment" type="int" value="0"/>
-            <Property name="text" type="java.lang.String" value="*"/>
-          </Properties>
+        <Component class="javax.swing.JLabel" name="statusIcon">
         </Component>
-        <Component class="javax.swing.JTextField" name="statusMsg">
-          <Properties>
-            <Property name="editable" type="boolean" value="false"/>
-            <Property name="horizontalAlignment" type="int" value="2"/>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="null"/>
-            </Property>
-          </Properties>
+        <Component class="javax.swing.JLabel" name="statusMsg">
         </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="headerPanel">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[32767, 24]"/>
+        </Property>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[0, 24]"/>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[105, 24]"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="North"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
+                  <Component id="pathField" pref="922" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+                  <Component id="changeLabel" min="-2" pref="20" max="-2" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="changeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="pathField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
         <Component class="javax.swing.JTextField" name="pathField">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
@@ -226,24 +250,76 @@
               <Border info="null"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pathFieldActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="statusIcon">
+        <Component class="javax.swing.JLabel" name="changeLabel">
+          <Properties>
+            <Property name="horizontalAlignment" type="int" value="0"/>
+            <Property name="text" type="java.lang.String" value="*"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JTabbedPane" name="infoContainer">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
-      </AuxValues>
+    <Container class="javax.swing.JPanel" name="jPanel1">
+      <Properties>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[100, 320]"/>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[946, 450]"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+      </Constraints>
 
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
-    </Container>
-    <Container class="javax.swing.JTabbedPane" name="fileContainer">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
-      </AuxValues>
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
+                  <Component id="infoContainer" min="-2" pref="394" max="-2" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+                  <Component id="fileContainer" pref="552" max="32767" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Component id="fileContainer" pref="446" max="32767" attributes="0"/>
+              <Component id="infoContainer" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Container class="javax.swing.JTabbedPane" name="infoContainer">
+          <Properties>
+            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[5, 400]"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+          </AuxValues>
 
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+        </Container>
+        <Container class="javax.swing.JTabbedPane" name="fileContainer">
+          <Properties>
+            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[5, 400]"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+          </AuxValues>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+        </Container>
+      </SubComponents>
     </Container>
   </SubComponents>
 </Form>

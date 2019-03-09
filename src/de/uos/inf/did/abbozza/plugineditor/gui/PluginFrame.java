@@ -27,6 +27,8 @@ import de.uos.inf.did.abbozza.plugineditor.systems.SystemManager;
 import de.uos.inf.did.abbozza.plugineditor.systems.WorldsManager;
 import java.awt.Component;
 import java.awt.Image;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -42,8 +44,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,6 +53,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
@@ -66,18 +72,21 @@ import org.w3c.dom.NodeList;
  *
  * @author michael
  */
-public class PluginFrame extends javax.swing.JFrame {
+public class PluginFrame extends javax.swing.JFrame implements DocumentListener, 
+                                                               ItemListener, 
+                                                               ListDataListener, 
+                                                               TableModelListener {
 
     // protected Plugin plugin;
     protected String pluginPath;
 
-    protected PluginInfoPanel infoPanel;
-    protected PluginFeaturePanel featurePanel;
-    protected PluginOptionsPanel optionsPanel;
-    protected PluginLanguagePanel languagePanel;
-    protected PluginFilesPanel filesPanel;
+    protected InfoPanel infoPanel;
+    protected FeaturePanel featurePanel;
+    protected OptionsPanel optionsPanel;
+    protected LanguagePanel languagePanel;
+    protected FilesPanel filesPanel;
 
-    protected boolean changed;
+    private boolean changed;
 
     protected HashMap<String, SystemManager> systems;
     protected SystemManager systemManager;
@@ -124,21 +133,25 @@ public class PluginFrame extends javax.swing.JFrame {
 
         initComponents();
 
+        try {
+            this.setIconImage(ImageIO.read(PluginEditor.class.getResourceAsStream("abbozza_plugineditor_icon.png")));
+        } catch (IOException ex) {}
+        
         changed = false;
 
-        infoPanel = new PluginInfoPanel(this);
+        infoPanel = new InfoPanel(this);
         infoContainer.add(infoPanel);
 
-        featurePanel = new PluginFeaturePanel(this);
+        featurePanel = new FeaturePanel(this);
         fileContainer.add(featurePanel);
 
-        optionsPanel = new PluginOptionsPanel(this);
+        optionsPanel = new OptionsPanel(this);
         fileContainer.add(optionsPanel);
 
-        languagePanel = new PluginLanguagePanel(this);
+        languagePanel = new LanguagePanel(this);
         fileContainer.add(languagePanel);
 
-        filesPanel = new PluginFilesPanel(this);
+        filesPanel = new FilesPanel(this);
         infoContainer.add(filesPanel);
 
         load(xml);
@@ -155,10 +168,12 @@ public class PluginFrame extends javax.swing.JFrame {
 
         jButton1 = new javax.swing.JButton();
         footerPanel = new javax.swing.JPanel();
-        changeLabel = new javax.swing.JLabel();
-        statusMsg = new javax.swing.JTextField();
-        pathField = new javax.swing.JTextField();
         statusIcon = new javax.swing.JLabel();
+        statusMsg = new javax.swing.JLabel();
+        headerPanel = new javax.swing.JPanel();
+        pathField = new javax.swing.JTextField();
+        changeLabel = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
         infoContainer = new javax.swing.JTabbedPane();
         fileContainer = new javax.swing.JTabbedPane();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -184,41 +199,91 @@ public class PluginFrame extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(440, 500));
 
         footerPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        changeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        changeLabel.setText("*");
-
-        statusMsg.setEditable(false);
-        statusMsg.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        statusMsg.setBorder(null);
-
-        pathField.setEditable(false);
-        pathField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        pathField.setText("<to be loaded>");
-        pathField.setBorder(null);
+        footerPanel.setMaximumSize(new java.awt.Dimension(32767, 20));
+        footerPanel.setMinimumSize(new java.awt.Dimension(0, 20));
 
         javax.swing.GroupLayout footerPanelLayout = new javax.swing.GroupLayout(footerPanel);
         footerPanel.setLayout(footerPanelLayout);
         footerPanelLayout.setHorizontalGroup(
             footerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, footerPanelLayout.createSequentialGroup()
-                .addComponent(changeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(footerPanelLayout.createSequentialGroup()
                 .addComponent(statusIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
-                .addComponent(statusMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 597, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(110, 110, 110)
-                .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(statusMsg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         footerPanelLayout.setVerticalGroup(
             footerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(footerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(changeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(statusMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(statusIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(footerPanelLayout.createSequentialGroup()
+                .addGroup(footerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(statusIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(statusMsg))
+                .addGap(0, 0, 0))
         );
+
+        getContentPane().add(footerPanel, java.awt.BorderLayout.SOUTH);
+
+        headerPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        headerPanel.setMaximumSize(new java.awt.Dimension(32767, 24));
+        headerPanel.setMinimumSize(new java.awt.Dimension(0, 24));
+        headerPanel.setPreferredSize(new java.awt.Dimension(105, 24));
+
+        pathField.setEditable(false);
+        pathField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        pathField.setText("<to be loaded>");
+        pathField.setBorder(null);
+        pathField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pathFieldActionPerformed(evt);
+            }
+        });
+
+        changeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        changeLabel.setText("*");
+
+        javax.swing.GroupLayout headerPanelLayout = new javax.swing.GroupLayout(headerPanel);
+        headerPanel.setLayout(headerPanelLayout);
+        headerPanelLayout.setHorizontalGroup(
+            headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerPanelLayout.createSequentialGroup()
+                .addComponent(pathField, javax.swing.GroupLayout.DEFAULT_SIZE, 922, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(changeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0))
+        );
+        headerPanelLayout.setVerticalGroup(
+            headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(headerPanelLayout.createSequentialGroup()
+                .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(changeLabel)
+                    .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, 0))
+        );
+
+        getContentPane().add(headerPanel, java.awt.BorderLayout.NORTH);
+
+        jPanel1.setMinimumSize(new java.awt.Dimension(100, 320));
+        jPanel1.setPreferredSize(new java.awt.Dimension(946, 450));
+
+        infoContainer.setMinimumSize(new java.awt.Dimension(5, 400));
+
+        fileContainer.setMinimumSize(new java.awt.Dimension(5, 400));
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addComponent(infoContainer, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(fileContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 552, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(fileContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
+            .addComponent(infoContainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         jMenu1.setText("File");
 
@@ -304,25 +369,6 @@ public class PluginFrame extends javax.swing.JFrame {
 
         setJMenuBar(jMenuBar1);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(footerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(infoContainer, javax.swing.GroupLayout.PREFERRED_SIZE, 440, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(fileContainer))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(infoContainer)
-                    .addComponent(fileContainer, javax.swing.GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-                .addComponent(footerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -373,8 +419,6 @@ public class PluginFrame extends javax.swing.JFrame {
         try {
             save();
             setStatusMsg("Saved successfully!");
-            changed = false;
-            this.uppateChanged();
         } catch (IOException ex) {
             setStatusMsg("Error during saving!");
         }
@@ -392,6 +436,10 @@ public class PluginFrame extends javax.swing.JFrame {
         buildJar();
     }//GEN-LAST:event_buildItemActionPerformed
 
+    private void pathFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pathFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pathFieldActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem buildItem;
@@ -399,11 +447,13 @@ public class PluginFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem closeMenuItem;
     protected javax.swing.JTabbedPane fileContainer;
     private javax.swing.JPanel footerPanel;
+    private javax.swing.JPanel headerPanel;
     protected javax.swing.JTabbedPane infoContainer;
     private javax.swing.JButton jButton1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
@@ -416,7 +466,7 @@ public class PluginFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JMenuItem settingsItem;
     private javax.swing.JLabel statusIcon;
-    private javax.swing.JTextField statusMsg;
+    private javax.swing.JLabel statusMsg;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -569,6 +619,8 @@ public class PluginFrame extends javax.swing.JFrame {
 
             infoContainer.setSelectedComponent(infoPanel);
         }
+        
+        setChanged(false);
     }
 
     /**
@@ -614,9 +666,13 @@ public class PluginFrame extends javax.swing.JFrame {
             FileWriter writer = new FileWriter(file);
             writer.write(text);
             writer.close();
+            
+            changed = false;
+            
         } catch (ParserConfigurationException ex) {
         }
 
+        setChanged(false);
     }
 
     /**
@@ -700,7 +756,9 @@ public class PluginFrame extends javax.swing.JFrame {
     /**
      * Update the change indicator.
      */
-    public void uppateChanged() {
+    public void setChanged(boolean flag) {
+        changed = flag;
+        
         if (changed) {
             changeLabel.setText("*");
         } else {
@@ -848,25 +906,46 @@ public class PluginFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Returns the path of the current plugin directory.
+     * @return The plugin's path
+     */
     public String getPluginPath() {
         return pluginPath;
     }
 
+    /**
+     * Add a panel to the file section.
+     * 
+     * @param panel The panel to be added
+     * @param closable This flag indicates, wether the panel is closable.
+     */
     public void addFileContainerPanel(JPanel panel, boolean closable) {
         fileContainer.add(panel);
         if (closable) {
-            fileContainer.setTabComponentAt(fileContainer.indexOfComponent(panel), new ClosableTabPanel(fileContainer, panel, panel.getName()));
+            ClosableTabPanel tab = new ClosableTabPanel(fileContainer, panel, panel.getName());
+            fileContainer.setTabComponentAt(fileContainer.indexOfComponent(panel), tab);
+            
         }
         fileContainer.setSelectedComponent(panel);
     }
 
+    /**
+     * Add a panel to the info section.
+     * 
+     * @param panel The panel to be added
+     * @param closable This flag indicates, wether the panel is closable.
+     */
     public void addInfoContainerPanel(JPanel panel, boolean closable) {
         infoContainer.add(panel);
         if (closable) {
-            infoContainer.setTabComponentAt(infoContainer.indexOfComponent(panel), new ClosableTabPanel(infoContainer, panel, panel.getName()));
+            ClosableTabPanel tab = new ClosableTabPanel(infoContainer, panel, panel.getName());
+            infoContainer.setTabComponentAt(infoContainer.indexOfComponent(panel), tab);
         }
         infoContainer.setSelectedComponent(panel);
     }
+    
+    
 
     /**
      * Build a jar containig all files in the plugin directory.
@@ -919,6 +998,52 @@ public class PluginFrame extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(PluginFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+
+    /**
+     * Various listeners for changes in panels.
+     */
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        setChanged(true);
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        setChanged(true);
+
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        setChanged(true);
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        setChanged(true);
+    }
+
+    @Override
+    public void intervalAdded(ListDataEvent e) {
+        setChanged(true);
+    }
+
+    @Override
+    public void intervalRemoved(ListDataEvent e) {
+        setChanged(true);
+    }
+
+    @Override
+    public void contentsChanged(ListDataEvent e) {
+        setChanged(true);
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        setChanged(true);
     }
         
 }

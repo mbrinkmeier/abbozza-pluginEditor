@@ -26,9 +26,9 @@ import org.w3c.dom.NodeList;
  *
  * @author michael
  */
-public class PluginOptionsPanel extends PluginFeaturePanel {
+public class OptionsPanel extends FeaturePanel {
     
-    public PluginOptionsPanel(PluginFrame frame) {
+    public OptionsPanel(PluginFrame frame) {
         super(frame);
         this.setName("Options");
         featureCheckBox.setText("Provide Options");
