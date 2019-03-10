@@ -45,8 +45,6 @@ public class ArduinoLibraryPanel extends javax.swing.JPanel implements PluginPan
         this.frame = frame;
         initComponents();
         
-        // libraryList.setCellEditor(this);
-        
         libraries = new DefaultListModel();
         libraryList.setModel(libraries);
     }

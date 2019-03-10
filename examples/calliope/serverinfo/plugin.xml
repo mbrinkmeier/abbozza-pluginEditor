@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plugin id="serverinfo" parent="" system="calliopeC">
+<name>ServerInfo</name>
+<description>This plugin implements a tool in the GUI, which provides information about the computer running the abbozza! Server.</description>
+<js file="ServerInfo.js"/>
+<handler class="ServerInfoHandler"/>
+<feature id="feat.serverinfo" option="serverinfo.enabled"/>
+<options/>
+<locales>
+<language id="en">
+<msg id="cat.NEWPLUGIN">New Plugin</msg>
+</language>
+<language id="de">
+<msg id="cat.NEWPLUGIN">Neues Plugin</msg>
+</language>
+</locales>
+</plugin>

@@ -207,7 +207,7 @@ public class FilesPanel extends javax.swing.JPanel implements PluginPanel {
         
         if ( dialog.state == 0 ) {
             FileEntry entry = new FileEntry(dialog.getName(),dialog.getTarget(),dialog.getFileType(),dialog.getJavaType(),dialog.getPrefix());
-            if ( createFile(entry) ) {
+            if ( frame.createFile(entry) ) {
                 files.addElement(entry);
                 frame.setChanged(true);
             }
@@ -264,19 +264,19 @@ public class FilesPanel extends javax.swing.JPanel implements PluginPanel {
             FileEntry entry = files.get(fileList.getSelectedIndex());
             File file = new File(frame.getPluginPath() + "/" + entry.getName() );
             String mimetype = Files.probeContentType(file.toPath());
-            if ( mimetype.startsWith("image")) {
+            if ( (mimetype != null ) && mimetype.startsWith("image")) {
                 
             } else {
                 FileEditorPanel fileEditor = new FileEditorPanel(entry,this.frame);
-                if ( mimetype.contains("javascript")) {
+                if ( (entry.getType() == FileEntry.TYPE_JS) || ((mimetype != null ) && mimetype.contains("javascript")) ) {
                     fileEditor.setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
-                } else if ( mimetype.contains("csrc")) {
+                } else if ((mimetype != null ) && mimetype.contains("csrc")) {
                     fileEditor.setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS);
-                } else if ( mimetype.contains("java")) {
+                } else if ( (entry.getType() == FileEntry.TYPE_JAVA) || ((mimetype != null ) && mimetype.contains("java")) ) {
                     fileEditor.setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-                }  else if ( mimetype.contains("xml")) {
+                }  else if ( (mimetype != null ) && mimetype.contains("xml")) {
                     fileEditor.setSyntaxStyle(SyntaxConstants.SYNTAX_STYLE_XML);                    
-                }
+}
                 frame.addFileContainerPanel(fileEditor, true);
             }
         } catch (IOException ex) {
@@ -469,11 +469,19 @@ public class FilesPanel extends javax.swing.JPanel implements PluginPanel {
      * @param entry
      * @return
      */
+    /*
     protected boolean createFile(FileEntry entry) {
         String template = "templates/javascript.tmpl";
         File file = new File(frame.getPluginPath() + "/" + entry.getName());
         try {
-            Files.createDirectories(file.toPath().getParent());
+            System.out.println(file.toPath().getParent());
+            try {
+                frame.setStatusMsg("Creating file " + file.toPath().getParent() );
+                Files.createDirectories(file.toPath().getParent());
+            } catch ( FileAlreadyExistsException aeex ) {
+                PluginEditor.showErrorMessage("Couldn't create directory " + file.toPath().getParent() );
+                return false;
+            }
             Files.createFile(file.toPath());
             switch ( entry.getType() ) {
                 case FileEntry.TYPE_WORLD:
@@ -508,15 +516,13 @@ public class FilesPanel extends javax.swing.JPanel implements PluginPanel {
             if ( template != null ) {
                 frame.writeTemplate(template , entry.getName());
             }
-        } catch ( FileAlreadyExistsException aeex ) {            
-            // PluginEditor.showErrorMessage(file.getAbsolutePath() + " exists!");
-            return true;
         } catch (IOException ex) {
             PluginEditor.showErrorMessage("Couldn't create " + file.getAbsolutePath());
             return false;
         }
         return true;
     }
+    */
     
     /**
      * Rename a file. 

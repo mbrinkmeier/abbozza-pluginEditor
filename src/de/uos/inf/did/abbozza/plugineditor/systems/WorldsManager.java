@@ -23,6 +23,8 @@ import de.uos.inf.did.abbozza.plugineditor.gui.PluginFrame;
  */
 public class WorldsManager extends SystemManager {
 
+    private WorldsPanel worldsPanel;
+
     public WorldsManager(PluginFrame frame) {
         super(frame);
     }
@@ -36,5 +38,12 @@ public class WorldsManager extends SystemManager {
     public String getDisplayName() {
         return "abbozza! Worlds";
     }
+    
+    @Override
+    public void initPanels() {
+        worldsPanel = new WorldsPanel(frame);
+        frame.addInfoContainerPanel(worldsPanel, false);
+    }
+    
     
 }

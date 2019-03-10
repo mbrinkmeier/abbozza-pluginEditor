@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features>
+    <!-- The basic features, w/o variables, operations, arrays ... -->    
+    <feature id="feat.CONSOLE">        
+        <category id="cat.CONSOLE" color="#00A000">
+            <block type="console_clear"/>
+            <block type="console_print">
+                <value name="TEXT">
+                    <block type="text_const">
+                        <mutation confirmed="false"/>
+                        <field name="CONTENT">Hallo!</field>
+                    </block>
+                </value>
+            </block>            
+            <block type="console_println">
+                <value name="TEXT">
+                    <block type="text_const">
+                        <mutation confirmed="false"/>
+                        <field name="CONTENT">Hallo!</field>
+                    </block>
+                </value>
+            </block>            
+            <block type="console_readkey"/>
+            <block type="console_readline"/>
+        </category>             
+    </feature>
+</features>

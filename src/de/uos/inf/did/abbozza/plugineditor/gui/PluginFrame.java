@@ -36,6 +36,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -785,6 +786,97 @@ public class PluginFrame extends javax.swing.JFrame implements DocumentListener,
     }
 
     /**
+     * Create an file.
+     * Returns true if the creation succeeds or the file exists already, false otherwise.
+     * 
+     * @param entry
+     * @return
+     */
+    public boolean createFile(FileEntry entry) {
+        String template = "templates/javascript.tmpl";
+        File file = new File(getPluginPath() + "/" + entry.getName());
+        try {
+            System.out.println(file.toPath().getParent());
+            try {                
+                setStatusMsg("Creating file " + file.toPath().getParent() );
+                Files.createDirectories(file.toPath().getParent());
+            } catch ( FileAlreadyExistsException aeex ) {
+                PluginEditor.showErrorMessage("Couldn't create directory " + file.toPath().getParent() );
+                return false;
+            }
+            Files.createFile(file.toPath());
+            switch ( entry.getType() ) {
+                case FileEntry.TYPE_WORLD:
+                    template = null;
+                    break;
+                case FileEntry.TYPE_JS:
+                    template = "templates/javascript.tmpl";
+                    break;
+                case FileEntry.TYPE_INSTALL:
+                    template = null;
+                    break;
+                case FileEntry.TYPE_JAVA:
+                    switch ( entry.getJavaType() ) {
+                        case FileEntry.JTYPE_HTTP :
+                            template = "templates/PluginHttpHandler.tmpl";
+                            break;
+                        case FileEntry.JTYPE_PANEL :
+                            template = "templates/PluginMonitorPanel.tmpl";
+                            break;
+                        case FileEntry.JTYPE_LISTENER :
+                            template = "templates/PluginMonitorListener.tmpl";
+                            break;
+                        case FileEntry.JTYPE_OTHER :
+                            template = "templates/Empty.tmpl";
+                            break;
+                    }
+                    break;
+                case FileEntry.TYPE_MISC:
+                    template = null;
+                    break;
+            }
+            if ( template != null ) {
+                writeTemplate(template , entry.getName());
+            }
+        } catch (IOException ex) {
+            PluginEditor.showErrorMessage("Couldn't create " + file.getAbsolutePath());
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * Create an file.
+     * Returns true if the creation succeeds or the file exists already, false otherwise.
+     * 
+     * @param entry
+     * @return
+     */
+    public boolean createFile(String name, String template) {
+        File file = new File(getPluginPath() + "/" + name );
+        try {
+            try {                
+                setStatusMsg("Creating file " + file.toPath().getParent() );
+                Files.createDirectories(file.toPath().getParent());
+            } catch ( FileAlreadyExistsException aeex ) {
+                PluginEditor.showErrorMessage("Couldn't create directory " + file.toPath().getParent() );
+                return false;
+            }
+            Files.createFile(file.toPath());
+
+            if ( template != null ) {
+                writeTemplate(template , name );
+            }
+        } catch (IOException ex) {
+            PluginEditor.showErrorMessage("Couldn't create " + file.getAbsolutePath());
+            return false;
+        }
+        return true;
+    }
+
+    
+    /**
      * Get the content of the given file as String.
      *
      * @param entry
@@ -839,6 +931,13 @@ public class PluginFrame extends javax.swing.JFrame implements DocumentListener,
 
         try {
             File file = new File(this.pluginPath + "/" + entry.getName());
+            
+            // If the parent directory doesn't exit, create it.
+            if ( !file.getParentFile().exists() ) {                
+                Files.createDirectories(file.getParentFile().toPath());
+            }
+            
+            // Write the file
             FileWriter writer = new FileWriter(file);
             writer.write(content);
             writer.close();

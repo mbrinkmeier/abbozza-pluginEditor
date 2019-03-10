@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plugin id="console_example" parent="" system="worlds">
+<name>ConsoleConsole Example Plugin</name>
+<description>Dieses Plugin stellt die Consolen Welt zur Verfügung.A console world provided by a plugin.</description>
+<world id="console_plugin" source="false">
+<name>Console Example Plugin</name>
+<description>A console world provided by a plugin.</description>
+</world>
+<options/>
+<locales>
+<language id="en">
+<msg id="cat.NEWPLUGIN">New Plugin</msg>
+</language>
+<language id="de">
+<msg id="cat.NEWPLUGIN">Neues Plugin</msg>
+</language>
+</locales>
+</plugin>

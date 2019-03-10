@@ -24,29 +24,37 @@ import de.uos.inf.did.abbozza.core.*;
 import de.uos.inf.did.abbozza.handler.*;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.*;
 
+/**
+ * This PluginHandler answers any request with basic informations about the server it is running on.
+ */
 
+public class ServerInfoHandler extends PluginHandler {
 
-public class %%CLASSNAME%% extends PluginHandler {
-
-    /**
-     * The PluginHandler requires a constructor without parameters.
-     */
-    public %%CLASSNAME%% () {
+    public ServerInfoHandler() {
         super();
     }
 
    /**
-    * Here the request is handled.
+    * Here the actual request is handled.
     */
    protected void handleRequest(HttpExchange exchg) throws IOException {
-        // Get the path of the request
+   	  // Get the requested path
         String path = exchg.getRequestURI().getPath();
-        
-        // Construct some fancy response.
-        String response = "Response";
+
+        // Get the local addresses
+        InetAddress inet = InetAddress.getLocalHost();
+        InetSocketAddress socket = exchg.getLocalAddress();
+
+		  // Build the response
+        String response = "Name: " + inet.getHostName() + "\n";
+        response = response + "Address: " + inet.getHostAddress() + "\n";
+        response = response + "Port: " + socket.getPort() + "\n";
+        response = response + "Requested path: " + path;
 
         // Send the response
+        AbbozzaLogger.err(response);
         sendResponse(exchg,200, "text/plain",response);
     }
 
