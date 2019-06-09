@@ -1,0 +1,11 @@
+PluginEditor Release Notes
+==========================
+
+
+TODO
+====
+
+- Files can be opend multiple times
+- Save button for files missing in certain situations
+- Newlines are added in xml files
+- Save as jar
